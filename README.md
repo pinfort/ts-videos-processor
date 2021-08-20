@@ -17,6 +17,12 @@
 - tsDropChk
 - tsSplitter(最新版を推奨。2021/08現在1.28?)
 
+## 利用イメージ
+
+```bash
+python main.py "/path/to/video files directory/ OR /path/to/file path"
+```
+
 ## 注意事項
 
 - 対象ファイルの拡張子は.m2tsである必要がある。
