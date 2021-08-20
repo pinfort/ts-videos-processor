@@ -20,7 +20,7 @@
 ## 利用イメージ
 
 ```bash
-python main.py "/path/to/video files directory/ OR /path/to/file path"
+python main.py "/path/to/video files directory/ OR /path/to/file"
 ```
 
 ## 注意事項
