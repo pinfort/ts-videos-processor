@@ -16,3 +16,9 @@
 - python3.9以上(Typingモジュールを使わすに型付けを行っているため)
 - tsDropChk
 - tsSplitter(最新版を推奨。2021/08現在1.28?)
+
+## 注意事項
+
+- 対象ファイルの拡張子は.m2tsである必要がある。
+- 使用を始める前に、DDLをつかってPROJECT_ROOT/database/database.sqliteファイルを作成する必要がある。
+- 使用を始める前に、tsDropChkとtsSplitterをPROJECT_ROOT/libraries/に配置する必要がある。配置すべきパスは、command/dropChk.pyとcommand/tsSplitter.pyのAPPLICATION_PATHを参照。
