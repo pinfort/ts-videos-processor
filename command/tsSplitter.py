@@ -10,7 +10,7 @@ from repository.executedFileRepository import ExecutedFileRepository
 
 class TsSplitter():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.joinpath("libraries\\TsSplitter128\\TsSplitter.exe").absolute())
-    OPTIONS = "-SD -1SEG"
+    OPTIONS = "-SD -EIT -1SEG"
     WORK_DIRECTORY = "tssplitter"
     splittedFileRepository: SplittedFileRepository
     executedFileRepository: ExecutedFileRepository
