@@ -7,7 +7,7 @@ from main.repository.executedFileRepository import ExecutedFileRepository
 from main.component.fileName import FileName
 
 class DropChk():
-    APPLICATION_PATH: str = str(Path(__file__).parent.parent.joinpath("libraries\\tsDropChk\\tsDropChkx64.exe").absolute())
+    APPLICATION_PATH: str = str(Path(__file__).parent.parent.parent.joinpath("libraries\\tsDropChk\\tsDropChkx64.exe").absolute())
     OPTIONS = "-nolog -srcpath"
     executedFileRepository: ExecutedFileRepository
     database: Database

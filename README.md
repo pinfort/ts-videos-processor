@@ -27,12 +27,12 @@ python main.py "/path/to/video files directory/ OR /path/to/file"
 
 - 対象ファイルの拡張子は.m2tsである必要がある。
 - 使用を始める前に、DDLをつかってPROJECT_ROOT/database/database.sqliteファイルを作成する必要がある。
-- 使用を始める前に、tsDropChkとtsSplitterをPROJECT_ROOT/libraries/に配置する必要がある。配置すべきパスは、command/dropChk.pyとcommand/tsSplitter.pyのAPPLICATION_PATHを参照。
+- 使用を始める前に、tsDropChkとtsSplitterをPROJECT_ROOT/libraries/に配置する必要がある。配置すべきパスは、main/command/dropChk.pyとmain/command/tsSplitter.pyのAPPLICATION_PATHを参照。
 - 操作の途中でファイル名から録画日時、チャンネル、タイトルを取得する処理がある。そのため、動画ファイルのタイトルは以下の構造である必要がある。
   - \[210708-0030]\[BSBS13_1]\[ＢＳフジ・１８１]タイトル.m2ts
   - つまり\[]によって囲われたセクションが三つあり、その後にタイトルと拡張子が続く構造である。
   - \[]は、一つ目が録画（放送）日時。西暦下二ケタ、二ケタ月、二ケタ日、ハイフン、二ケタ時（24h）、二ケタ分である。
   - 二つ目は、チャンネル。物理チャンネル
-  - 三つ目は、放送局名。現状記録していない。
+  - 三つ目は、放送局名。
   - もし\[]によって囲われたセクションが四つ以上あった場合、それもすべて動画タイトルとみなして処理する。そのため、\[字]などが含まれる場合でも処理に問題はない。
 - このプログラムを二プロセス以上同時に動作させたときにデータベースの内容が正しく更新される保証は、ない。
