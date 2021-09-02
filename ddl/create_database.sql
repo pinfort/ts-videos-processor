@@ -8,6 +8,7 @@ CREATE TABLE "executed_file" (
 	"recorded_at"	NUMERIC NOT NULL,
 	"channel"	TEXT NOT NULL,
 	"title"	TEXT NOT NULL,
+	"channelName"	TEXT NOT NULL,
 	PRIMARY KEY("id")
 );
 

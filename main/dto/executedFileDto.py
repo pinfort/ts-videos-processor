@@ -10,4 +10,5 @@ class ExecutedFileDto:
     size: int
     recorded_at: datetime
     channel: str
+    channelName: str
     title: str

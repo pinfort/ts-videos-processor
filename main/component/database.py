@@ -24,3 +24,6 @@ class Database:
 
     def disConnect(self):
         self.connection.close()
+    
+    def __del__(self):
+        self.disConnect()

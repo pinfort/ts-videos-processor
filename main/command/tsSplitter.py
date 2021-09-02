@@ -1,12 +1,12 @@
-from dto.splittedFileDto import SplittedFileDto
-from dto.executedFileDto import ExecutedFileDto
 from pathlib import Path
 import glob
 
-from component.database import Database
-from component.executer import executeCommand
-from repository.splittedFileRepository import SplittedFileRepository
-from repository.executedFileRepository import ExecutedFileRepository
+from main.dto.splittedFileDto import SplittedFileDto
+from main.dto.executedFileDto import ExecutedFileDto
+from main.component.database import Database
+from main.component.executer import executeCommand
+from main.repository.splittedFileRepository import SplittedFileRepository
+from main.repository.executedFileRepository import ExecutedFileRepository
 
 class TsSplitter():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.joinpath("libraries\\TsSplitter128\\TsSplitter.exe").absolute())

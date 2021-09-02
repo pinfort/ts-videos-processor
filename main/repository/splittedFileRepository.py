@@ -1,8 +1,8 @@
 import sqlite3
 from pathlib import Path
 
-from component.database import Database
-from dto.splittedFileDto import SplittedFileDto
+from main.component.database import Database
+from main.dto.splittedFileDto import SplittedFileDto
 
 class SplittedFileRepository:
     database: Database

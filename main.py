@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
-from command.dropChk import DropChk
-from command.tsSplitter import TsSplitter
+from main.command.dropChk import DropChk
+from main.command.tsSplitter import TsSplitter
 
 if __name__ == "__main__":
     dropCheck = DropChk()

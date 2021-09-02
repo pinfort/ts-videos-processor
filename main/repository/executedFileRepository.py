@@ -1,8 +1,8 @@
 import sqlite3
 from pathlib import Path
 
-from component.database import Database
-from dto.executedFileDto import ExecutedFileDto
+from main.component.database import Database
+from main.dto.executedFileDto import ExecutedFileDto
 
 class ExecutedFileRepository:
     database: Database
@@ -18,8 +18,10 @@ class ExecutedFileRepository:
                 size,
                 recorded_at,
                 channel,
+                channelName,
                 title
             ) VALUES (
+                ?,
                 ?,
                 ?,
                 ?,
@@ -33,6 +35,7 @@ class ExecutedFileRepository:
             executedFile.size,
             executedFile.recorded_at,
             executedFile.channel,
+            executedFile.channelName,
             executedFile.title
         ))
         self.database.commit()
@@ -46,6 +49,7 @@ class ExecutedFileRepository:
                 size,
                 recorded_at as "rec_at [timestamp]",
                 channel,
+                channelName,
                 title
             FROM
                 executed_file
@@ -60,7 +64,8 @@ class ExecutedFileRepository:
             size=result[3],
             recorded_at=result[4],
             channel=result[5],
-            title=result[6]
+            channelName=result[6],
+            title=result[7]
         )
     
     def findByFile(self, file:Path) -> ExecutedFileDto:
@@ -72,6 +77,7 @@ class ExecutedFileRepository:
                 size,
                 recorded_at as "rec_at [timestamp]",
                 channel,
+                channelName,
                 title
             FROM
                 executed_file
@@ -88,5 +94,6 @@ class ExecutedFileRepository:
             size=result[3],
             recorded_at=result[4],
             channel=result[5],
-            title=result[6]
+            channelName=result[6],
+            title=result[7]
         )

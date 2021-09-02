@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from dto.executedFileDto import ExecutedFileDto
-from component.database import Database
-from component.executer import executeCommand
-from repository.executedFileRepository import ExecutedFileRepository
-from component.fileName import FileName
+from main.dto.executedFileDto import ExecutedFileDto
+from main.component.database import Database
+from main.component.executer import executeCommand
+from main.repository.executedFileRepository import ExecutedFileRepository
+from main.component.fileName import FileName
 
 class DropChk():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.joinpath("libraries\\tsDropChk\\tsDropChkx64.exe").absolute())
@@ -32,6 +32,7 @@ class DropChk():
             size=fileSize,
             recorded_at=fileName.recorded_at,
             channel=fileName.channel,
+            channelName=fileName.channelName,
             title=fileName.title
         )
         print(f"""
@@ -41,6 +42,7 @@ class DropChk():
             size={executedFile.size},
             recorded_at={executedFile.recorded_at},
             channel={executedFile.channel},
+            channelName={executedFile.channelName},
             title={executedFile.title}
         """)
         self.executedFileRepository.insert(executedFile)
