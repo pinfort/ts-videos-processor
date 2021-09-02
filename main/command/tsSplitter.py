@@ -33,6 +33,7 @@ class TsSplitter():
             print(f"ERROR: splitted file already exist! original:{originalFile}")
             for file in existingFiles:
                 print(file)
+            raise Exception("splitted file already exist!")
 
         command = TsSplitter.APPLICATION_PATH + " " + TsSplitter.OPTIONS + " -OUT \"" + str(outputPath.absolute()) + "\" -SEP \"" + str(path.absolute()) + "\""
         print(f"tsSpliter starting with command:{command}")
