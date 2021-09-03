@@ -5,7 +5,7 @@ from sqlite3.dbapi2 import Cursor
 
 # スレッドセーフではない
 class Database:
-    DATABASE_PATH = Path(__file__).parent.parent.joinpath("database/database.sqlite")
+    DATABASE_PATH = Path(__file__).parent.parent.parent.joinpath("database/database.sqlite")
     connection: sqlite3.Connection
     cursor: Cursor
 
