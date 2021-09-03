@@ -58,7 +58,8 @@ class TsSplitter():
             id={file.id},
             executeFileId={file.executedFileId},
             file={file.file},
-            size={file.size}
+            size={file.size},
+            duration={file.duration}
             """)
 
     def findFiles(self, originalFile:ExecutedFileDto) -> list[SplittedFileDto]:

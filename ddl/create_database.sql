@@ -9,7 +9,7 @@ CREATE TABLE "executed_file" (
 	"channel"	TEXT NOT NULL,
 	"title"	TEXT NOT NULL,
 	"channelName"	TEXT NOT NULL,
-	"duration"	INTEGER NOT NULL,
+	"duration"	REAL NOT NULL,
 	PRIMARY KEY("id")
 );
 
@@ -18,7 +18,7 @@ CREATE TABLE "splitted_file" (
 	"executed_file_id"	INTEGER NOT NULL,
 	"file"	TEXT NOT NULL,
 	"size"	INTEGER NOT NULL,
-	"duration"	INTEGER NOT NULL,
+	"duration"	REAL NOT NULL,
 	FOREIGN KEY("executed_file_id") REFERENCES "executed_file"("id"),
 	PRIMARY KEY("id")
 );

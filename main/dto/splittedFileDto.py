@@ -7,4 +7,4 @@ class SplittedFileDto:
     executedFileId: int
     file: Path
     size: int
-    duration: int
+    duration: float
