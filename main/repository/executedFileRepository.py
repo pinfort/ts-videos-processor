@@ -19,8 +19,10 @@ class ExecutedFileRepository:
                 recorded_at,
                 channel,
                 channelName,
+                duration,
                 title
             ) VALUES (
+                ?,
                 ?,
                 ?,
                 ?,
@@ -36,6 +38,7 @@ class ExecutedFileRepository:
             executedFile.recorded_at,
             executedFile.channel,
             executedFile.channelName,
+            executedFile.duration,
             executedFile.title
         ))
         self.database.commit()
@@ -50,6 +53,7 @@ class ExecutedFileRepository:
                 recorded_at as "rec_at [timestamp]",
                 channel,
                 channelName,
+                duration,
                 title
             FROM
                 executed_file
@@ -65,7 +69,8 @@ class ExecutedFileRepository:
             recorded_at=result[4],
             channel=result[5],
             channelName=result[6],
-            title=result[7]
+            duration=result[7],
+            title=result[8]
         )
     
     def findByFile(self, file:Path) -> ExecutedFileDto:
@@ -78,6 +83,7 @@ class ExecutedFileRepository:
                 recorded_at as "rec_at [timestamp]",
                 channel,
                 channelName,
+                duration,
                 title
             FROM
                 executed_file
@@ -95,5 +101,6 @@ class ExecutedFileRepository:
             recorded_at=result[4],
             channel=result[5],
             channelName=result[6],
-            title=result[7]
+            duration=result[7],
+            title=result[8]
         )

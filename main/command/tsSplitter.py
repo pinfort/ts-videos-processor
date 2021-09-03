@@ -1,5 +1,6 @@
 from pathlib import Path
 import glob
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from main.dto.splittedFileDto import SplittedFileDto
 from main.dto.executedFileDto import ExecutedFileDto
@@ -66,12 +67,14 @@ class TsSplitter():
         pattern = glob.escape(originalFile.file.stem) + "*.m2ts"
         print(f"search pattern {pattern}")
         for file in directory.glob(pattern):
-            files.append(
-                SplittedFileDto(
-                    id=1,
-                    executedFileId=originalFile.id,
-                    file=file,
-                    size=file.stat().st_size
+            with VideoFileClip(str(file)) as video:
+                files.append(
+                    SplittedFileDto(
+                        id=1,
+                        executedFileId=originalFile.id,
+                        file=file,
+                        size=file.stat().st_size,
+                        duration=video.duration
+                    )
                 )
-            )
         return files

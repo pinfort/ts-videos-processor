@@ -1,4 +1,5 @@
 from pathlib import Path
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from main.dto.executedFileDto import ExecutedFileDto
 from main.component.database import Database
@@ -25,16 +26,19 @@ class DropChk():
         fileSize: int = path.stat().st_size
         fileName: FileName = FileName(path.name)
 
-        executedFile: ExecutedFileDto = ExecutedFileDto(
-            id=1,
-            file=path,
-            drops=drops,
-            size=fileSize,
-            recorded_at=fileName.recorded_at,
-            channel=fileName.channel,
-            channelName=fileName.channelName,
-            title=fileName.title
-        )
+        with VideoFileClip(str(path)) as video:
+            executedFile: ExecutedFileDto = ExecutedFileDto(
+                id=1,
+                file=path,
+                drops=drops,
+                size=fileSize,
+                recorded_at=fileName.recorded_at,
+                channel=fileName.channel,
+                channelName=fileName.channelName,
+                duration=video.duration,
+                title=fileName.title
+            )
+
         print(f"""
             File executed.
             file={executedFile.file},
@@ -43,6 +47,7 @@ class DropChk():
             recorded_at={executedFile.recorded_at},
             channel={executedFile.channel},
             channelName={executedFile.channelName},
+            duration={executedFile.duration},
             title={executedFile.title}
         """)
         self.executedFileRepository.insert(executedFile)

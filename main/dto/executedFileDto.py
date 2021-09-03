@@ -12,3 +12,4 @@ class ExecutedFileDto:
     channel: str
     channelName: str
     title: str
+    duration: int

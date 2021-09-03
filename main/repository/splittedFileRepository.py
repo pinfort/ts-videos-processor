@@ -15,8 +15,10 @@ class SplittedFileRepository:
             INSERT INTO splitted_file (
                 executed_file_id,
                 file,
-                size
+                size,
+                duration
             ) VALUES (
+                ?,
                 ?,
                 ?,
                 ?
@@ -24,7 +26,8 @@ class SplittedFileRepository:
         """, (
             splittedFile.executedFileId,
             str(splittedFile.file),
-            splittedFile.size
+            splittedFile.size,
+            splittedFile.duration
         ))
         self.database.commit()
 
@@ -34,7 +37,8 @@ class SplittedFileRepository:
                 id,
                 executed_file_id,
                 file,
-                size
+                size,
+                duration
             FROM
                 splitted_file
             WHERE
@@ -45,5 +49,6 @@ class SplittedFileRepository:
             id=result[0],
             executedFileId=result[1],
             file=Path(result[2]),
-            size=result[3]
+            size=result[3],
+            duration=result[4]
         )

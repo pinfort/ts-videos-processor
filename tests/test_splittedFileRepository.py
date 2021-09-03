@@ -12,12 +12,14 @@ def test_insert():
 
         CREATE TABLE "executed_file" (
             "id"	INTEGER NOT NULL,
-            "file"	TEXT NOT NULL,
+            "file"	TEXT NOT NULL UNIQUE,
             "drops"	INTEGER NOT NULL,
             "size"	INTEGER NOT NULL,
             "recorded_at"	NUMERIC NOT NULL,
             "channel"	TEXT NOT NULL,
             "title"	TEXT NOT NULL,
+            "channelName"	TEXT NOT NULL,
+            "duration"	INTEGER NOT NULL,
             PRIMARY KEY("id")
         );
 
@@ -26,6 +28,7 @@ def test_insert():
             "executed_file_id"	INTEGER NOT NULL,
             "file"	TEXT NOT NULL,
             "size"	INTEGER NOT NULL,
+            "duration"	INTEGER NOT NULL,
             FOREIGN KEY("executed_file_id") REFERENCES "executed_file"("id"),
             PRIMARY KEY("id")
         );
@@ -37,6 +40,8 @@ def test_insert():
             "size",
             "recorded_at",
             "channel",
+            "channelName",
+            "duration",
             "title"
         ) VALUES (
             "1",
@@ -45,6 +50,8 @@ def test_insert():
             "1",
             "1",
             "a",
+            "a",
+            "1",
             "a"
         )
     """)
@@ -55,6 +62,7 @@ def test_insert():
         1,
         1,
         Path("test"),
+        1,
         1
     )
     repository.insert(dto)
@@ -64,3 +72,4 @@ def test_insert():
     assert find.executedFileId == 1
     assert find.file == Path("test")
     assert find.size == 1
+    assert find.duration == 1
