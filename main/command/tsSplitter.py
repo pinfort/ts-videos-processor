@@ -4,6 +4,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from main.dto.splittedFileDto import SplittedFileDto
 from main.dto.executedFileDto import ExecutedFileDto
+from main.dto.converter.splittedFileDtoConverter import SplittedFileDtoConverter
 from main.component.database import Database
 from main.component.executer import executeCommand
 from main.repository.splittedFileRepository import SplittedFileRepository
@@ -23,11 +24,9 @@ class TsSplitter():
         self.executedFileRepository = ExecutedFileRepository(self.database)
 
     def tsSplitter(self, path: Path):
+        # error check
         if(not path.exists()):
             raise Exception(f"file not found path:{path}")
-        outputPath = path.parent.joinpath(TsSplitter.WORK_DIRECTORY)
-        if(not outputPath.exists()):
-            outputPath.mkdir()
         originalFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
         existingFiles = self.findFiles(originalFile)
         if(len(existingFiles) > 0):
@@ -35,6 +34,11 @@ class TsSplitter():
             for file in existingFiles:
                 print(file)
             raise Exception("splitted file already exist!")
+
+
+        outputPath = path.parent.joinpath(TsSplitter.WORK_DIRECTORY)
+        if(not outputPath.exists()):
+            outputPath.mkdir()
 
         command = TsSplitter.APPLICATION_PATH + " " + TsSplitter.OPTIONS + " -OUT \"" + str(outputPath.absolute()) + "\" -SEP \"" + str(path.absolute()) + "\""
         print(f"tsSpliter starting with command:{command}")
@@ -70,12 +74,9 @@ class TsSplitter():
         for file in directory.glob(pattern):
             with VideoFileClip(str(file)) as video:
                 files.append(
-                    SplittedFileDto(
-                        id=1,
-                        executedFileId=originalFile.id,
-                        file=file,
-                        size=file.stat().st_size,
-                        duration=video.duration
+                    SplittedFileDtoConverter.convert(
+                        filePath=file,
+                        originalFile=originalFile
                     )
                 )
         return files

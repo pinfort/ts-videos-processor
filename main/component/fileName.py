@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 
 class FileName:
     recorded_at: datetime
@@ -12,3 +13,7 @@ class FileName:
         self.channel = fileNameParts[1][1:]
         self.channelName = fileNameParts[2][1:]
         self.title = "]".join(fileNameParts[3:])
+
+    @staticmethod
+    def fromPath(path: Path) -> 'FileName':
+        return FileName(path.name)

@@ -6,6 +6,7 @@ from main.component.database import Database
 from main.component.executer import executeCommand
 from main.repository.executedFileRepository import ExecutedFileRepository
 from main.component.fileName import FileName
+from main.dto.converter.executedFileDtoConverter import ExecutedFileDtoConverter
 
 class DropChk():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.parent.joinpath("libraries\\tsDropChk\\tsDropChkx64.exe").absolute())
@@ -23,21 +24,8 @@ class DropChk():
         command = DropChk.APPLICATION_PATH + " " + DropChk.OPTIONS + " \"" + str(path) + "\""
         print(f"dropchk starting with command:{command} path:{path}")
         drops: int = executeCommand(command)
-        fileSize: int = path.stat().st_size
-        fileName: FileName = FileName(path.name)
 
-        with VideoFileClip(str(path)) as video:
-            executedFile: ExecutedFileDto = ExecutedFileDto(
-                id=1,
-                file=path,
-                drops=drops,
-                size=fileSize,
-                recorded_at=fileName.recorded_at,
-                channel=fileName.channel,
-                channelName=fileName.channelName,
-                duration=video.duration,
-                title=fileName.title
-            )
+        executedFile: ExecutedFileDto = ExecutedFileDtoConverter.convert(filePath=path, drops=drops)
 
         print(f"""
             File executed.
