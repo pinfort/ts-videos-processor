@@ -52,3 +52,28 @@ class SplittedFileRepository:
             size=result[3],
             duration=result[4]
         )
+
+    def selectByExecutedFileId(self, executedFileId: int) -> list[SplittedFileDto]:
+        self.database.cursor.execute(f"""
+            SELECT
+                id,
+                executed_file_id,
+                file,
+                size,
+                duration
+            FROM
+                splitted_file
+            WHERE
+                executed_file_id = {executedFileId}
+        """)
+        results: list[sqlite3.Row] = self.database.cursor.fetchall()
+        return [
+            SplittedFileDto(
+                id=result[0],
+                executedFileId=result[1],
+                file=Path(result[2]),
+                size=result[3],
+                duration=result[4]
+            )
+            for result in results
+        ]

@@ -4,10 +4,12 @@ from typing import Iterable
 
 from main.command.dropChk import DropChk
 from main.command.tsSplitter import TsSplitter
+from main.command.amatsukazeAddTask import AmatsukazeAddTask
 
 if __name__ == "__main__":
     dropCheck = DropChk()
     tsSplitter = TsSplitter()
+    amatsukazeAddTask = AmatsukazeAddTask()
 
     path: Path = Path(sys.argv[1])
     print(path)
@@ -29,3 +31,4 @@ if __name__ == "__main__":
         print(f"processing file:{file}")
         dropCheck.dropChk(file)
         tsSplitter.tsSplitter(file)
+        amatsukazeAddTask.amatsukaze(file)

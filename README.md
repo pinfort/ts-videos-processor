@@ -6,16 +6,16 @@
 
 - tsDropChkによるドロップのチェックとDBへの記録
 - tsSplitterによるファイルの分割とDBへの記録
+- tssplitterによって分割されたtsファイルをAmatsukazeのキューに追加
 
-これによって生成された分割済みファイルをエンコードするのだが、これは別途人力で行う。
-現状、tsファイルが不正であったときにtsSplitterがどのような挙動をするのか把握しきれていないので、
-このまま全自動化すると予期しない結果になる可能性があるため。
+Amatsukazeに登録するtsファイルはmainSplittedFileFinderで選択抽出している。環境によってこれを変更する必要があると思われる。
 
 利用のためには以下のソフトウェアが必要
 
 - python3.9以上(Typingモジュールを使わすに型付けを行っているため)
 - tsDropChk
 - tsSplitter(最新版を推奨。2021/08現在1.28?)
+- Amatsukaze
 
 ## 利用イメージ
 
@@ -29,7 +29,8 @@ pipenv shell
 
 - 対象ファイルの拡張子は.m2tsである必要がある。
 - 使用を始める前に、DDLをつかってPROJECT_ROOT/database/database.sqliteファイルを作成する必要がある。
-- 使用を始める前に、tsDropChkとtsSplitterをPROJECT_ROOT/libraries/に配置する必要がある。配置すべきパスは、main/command/dropChk.pyとmain/command/tsSplitter.pyのAPPLICATION_PATHを参照。
+- 使用を始める前に、tsDropChkとtsSplitter, AmatsukazeをPROJECT_ROOT/libraries/に配置する必要がある。配置すべきパスは、main/command/dropChk.pyとmain/command/tsSplitter.py, main/command/amatsukazeAddTask.pyのAPPLICATION_PATHを参照。
+- 使用を始める前に、AmatsukazeServerが起動している必要がある。接続先ポート等も確認すること。
 - 操作の途中でファイル名から録画日時、チャンネル、タイトルを取得する処理がある。そのため、動画ファイルのタイトルは以下の構造である必要がある。
   - \[210708-0030]\[BSBS13_1]\[ＢＳフジ・１８１]タイトル.m2ts
   - つまり\[]によって囲われたセクションが三つあり、その後にタイトルと拡張子が続く構造である。
@@ -38,3 +39,4 @@ pipenv shell
   - 三つ目は、放送局名。
   - もし\[]によって囲われたセクションが四つ以上あった場合、それもすべて動画タイトルとみなして処理する。そのため、\[字]などが含まれる場合でも処理に問題はない。
 - このプログラムを二プロセス以上同時に動作させたときにデータベースの内容が正しく更新される保証は、ない。
+- このプログラムは元のtsファイルがtsSplitterによって分割されるとき2ファイルに分割されることを前提としている。環境によってこれが変更になるときはmainSplittedFileFinderを書き換える必要がある。
