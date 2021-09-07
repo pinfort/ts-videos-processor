@@ -22,7 +22,7 @@
 ```bash
 pipenv shell
 
-\[pipenv shell\]> python main.py "/path/to/video files directory/ OR /path/to/file"
+[pipenv shell]> python main.py "/path/to/video files directory/ OR /path/to/file"
 ```
 
 ## 注意事項
