@@ -28,6 +28,8 @@ class MainSplittedFileFinder:
         else:
             raise Exception(f"unexpected splitted file count! file_count:{splittedFileCount} executed_file_id:{executedFile.id}")
 
+        self.validateMainFile(mainFile, executedFile)
+
         print(f"""
         main file found.
         id={mainFile.id},
@@ -61,11 +63,6 @@ class MainSplittedFileFinder:
         if gabageFile.size > (mainFile.size * 0.1):
             raise Exception("gabage file size is grater than 10%% of mainfile.")
 
-        # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は10秒以下0秒以上。
-        durationDifference: int = int(executedFile.duration) - int(mainFile.duration)
-        if durationDifference < 0 or durationDifference > 10:
-            raise Exception(f"duration between original and splitted is too different! difference:{durationDifference} executed_file_id:{executedFile.id}")
-
         return mainFile
 
     def splittedFileCountIsOne(self, executedFile: ExecutedFileDto, splittedFiles: list[SplittedFileDto]) -> SplittedFileDto:
@@ -73,9 +70,16 @@ class MainSplittedFileFinder:
             raise Exception(f"splitted file counts not 1! executed_file_id:{executedFile.id}")
         splittedFile: SplittedFileDto = splittedFiles[0]
 
+        return splittedFile
+
+    def validateMainFile(self, splittedFile: SplittedFileDto, executedFile: ExecutedFileDto) -> None:
+        if splittedFile is None:
+            raise Exception("splitted file is None")
+
+        if executedFile.drops > 1000:
+            raise Exception(f"too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}")
+
         # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は10秒以下0秒以上。
         durationDifference: int = int(executedFile.duration) - int(splittedFile.duration)
-        if durationDifference > 0 and durationDifference < 10:
+        if durationDifference < 0 or durationDifference > 10:
             raise Exception(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}")
-
-        return splittedFile
