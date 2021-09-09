@@ -6,12 +6,7 @@ from main.command.dropChk import DropChk
 from main.command.tsSplitter import TsSplitter
 from main.command.amatsukazeAddTask import AmatsukazeAddTask
 
-if __name__ == "__main__":
-    dropCheck = DropChk()
-    tsSplitter = TsSplitter()
-    amatsukazeAddTask = AmatsukazeAddTask()
-
-    path: Path = Path(sys.argv[1])
+def processPath(path: Path):
     print(path)
     files: Iterable[Path]
 
@@ -32,3 +27,11 @@ if __name__ == "__main__":
         dropCheck.dropChk(file)
         tsSplitter.tsSplitter(file)
         amatsukazeAddTask.amatsukaze(file)
+
+if __name__ == "__main__":
+    dropCheck = DropChk()
+    tsSplitter = TsSplitter()
+    amatsukazeAddTask = AmatsukazeAddTask()
+
+    for input in sys.argv[1:]:
+        processPath(Path(input))
