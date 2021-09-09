@@ -16,9 +16,32 @@ class MainSplittedFileFinder:
             分割された複数のファイルから、メインとなるファイルを取得する
         """
         splittedFiles: list[SplittedFileDto] = self.splittedFileRepository.selectByExecutedFileId(executedFile.id)
+        splittedFileCount: int = len(splittedFiles)
+        print(f"{splittedFileCount} splitted files found. starting validation")
+        mainFile: SplittedFileDto
+
+        # TSSplitterの結果のファイル数に応じてファイルの確認処理を分岐
+        if splittedFileCount == 1:
+            mainFile = self.splittedFileCountIsOne(executedFile, splittedFiles)
+        elif splittedFileCount == 2:
+            mainFile = self.splittedFileCountIsTwo(executedFile, splittedFiles)
+        else:
+            raise Exception(f"unexpected splitted file count! file_count:{splittedFileCount} executed_file_id:{executedFile.id}")
+
+        print(f"""
+        main file found.
+        id={mainFile.id},
+        executeFileId={mainFile.executedFileId},
+        file={mainFile.file},
+        size={mainFile.size},
+        duration={mainFile.duration}
+        """)
+        return mainFile
+
+    def splittedFileCountIsTwo(self, executedFile: ExecutedFileDto, splittedFiles: list[SplittedFileDto]) -> SplittedFileDto:
         # TSSplitterの結果は２ファイルを期待
         if(len(splittedFiles) != 2):
-            raise Exception(f"splitted file counts not 2! id:{executedFile.id}")
+            raise Exception(f"splitted file counts not 2! executed_file_id:{executedFile.id}")
         mainFile: SplittedFileDto
         gabageFile: SplittedFileDto
 
@@ -34,12 +57,25 @@ class MainSplittedFileFinder:
         if(gabageFile.duration > 5.0):
             raise Exception("gabage file duration id grater than 5.0!")
 
-        print(f"""
-        main file found.
-        id={mainFile.id},
-        executeFileId={mainFile.executedFileId},
-        file={mainFile.file},
-        size={mainFile.size},
-        duration={mainFile.duration}
-        """)
+        # ゴミファイルのファイルサイズはメインファイルの10%以下
+        if gabageFile.size > (mainFile.size * 0.1):
+            raise Exception("gabage file size is grater than 10%% of mainfile.")
+
+        # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は10秒以下0秒以上。
+        durationDifference: int = int(executedFile.duration) - int(mainFile.duration)
+        if durationDifference < 0 or durationDifference > 10:
+            raise Exception(f"duration between original and splitted is too different! difference:{durationDifference} executed_file_id:{executedFile.id}")
+
         return mainFile
+
+    def splittedFileCountIsOne(self, executedFile: ExecutedFileDto, splittedFiles: list[SplittedFileDto]) -> SplittedFileDto:
+        if len(splittedFiles) != 1:
+            raise Exception(f"splitted file counts not 1! executed_file_id:{executedFile.id}")
+        splittedFile: SplittedFileDto = splittedFiles[0]
+
+        # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は10秒以下0秒以上。
+        durationDifference: int = int(executedFile.duration) - int(splittedFile.duration)
+        if durationDifference > 0 and durationDifference < 10:
+            raise Exception(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}")
+
+        return splittedFile
