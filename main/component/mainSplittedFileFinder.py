@@ -56,8 +56,8 @@ class MainSplittedFileFinder:
             gabageFile = splittedFiles[0]
 
         # ゴミファイルの長さが長いと、何らかの異常がある場合がある
-        if(gabageFile.duration > 5.0):
-            raise Exception("gabage file duration id grater than 5.0!")
+        if(gabageFile.duration > 20.0):
+            raise Exception("gabage file duration id grater than 20.0!")
 
         # ゴミファイルのファイルサイズはメインファイルの10%以下
         if gabageFile.size > (mainFile.size * 0.1):
@@ -75,6 +75,9 @@ class MainSplittedFileFinder:
     def validateMainFile(self, splittedFile: SplittedFileDto, executedFile: ExecutedFileDto) -> None:
         if splittedFile is None:
             raise Exception("splitted file is None")
+
+        if splittedFile.duration < 1:
+            raise Exception("length of file is too short")
 
         if executedFile.drops > 1000:
             raise Exception(f"too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}")

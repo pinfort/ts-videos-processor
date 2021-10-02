@@ -8,11 +8,18 @@ from main.dto.executedFileDto import ExecutedFileDto
 class SplittedFileDtoConverter:
     @staticmethod
     def convert(filePath: Path, originalFile: ExecutedFileDto, id = None) -> SplittedFileDto:
-        with VideoFileClip(str(filePath)) as video:
-            return SplittedFileDto(
-                id=1 if id is None else id,
-                executedFileId=originalFile.id,
-                file=filePath,
-                size=filePath.stat().st_size,
-                duration=video.duration
-            )
+        duration: int = 0
+
+        try:
+            with VideoFileClip(str(filePath)) as video:
+                duration = video.duration
+        except Exception as e:
+            print(e)
+
+        return SplittedFileDto(
+            id=1 if id is None else id,
+            executedFileId=originalFile.id,
+            file=filePath,
+            size=filePath.stat().st_size,
+            duration=duration
+        )

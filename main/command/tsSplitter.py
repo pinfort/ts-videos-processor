@@ -72,11 +72,10 @@ class TsSplitter():
         pattern = glob.escape(originalFile.file.stem) + "*.m2ts"
         print(f"search pattern {pattern}")
         for file in directory.glob(pattern):
-            with VideoFileClip(str(file)) as video:
-                files.append(
-                    SplittedFileDtoConverter.convert(
-                        filePath=file,
-                        originalFile=originalFile
-                    )
+            files.append(
+                SplittedFileDtoConverter.convert(
+                    filePath=file,
+                    originalFile=originalFile
                 )
+            )
         return files
