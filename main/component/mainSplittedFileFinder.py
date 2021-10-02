@@ -82,7 +82,7 @@ class MainSplittedFileFinder:
         if executedFile.drops > 1000:
             raise Exception(f"too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}")
 
-        # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は10秒以下0秒以上。
+        # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は20秒以下0秒以上。
         durationDifference: int = int(executedFile.duration) - int(splittedFile.duration)
-        if durationDifference < 0 or durationDifference > 10:
+        if durationDifference < 0 or durationDifference > 20:
             raise Exception(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}")
