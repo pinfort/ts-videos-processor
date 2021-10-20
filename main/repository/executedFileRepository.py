@@ -1,5 +1,7 @@
-import sqlite3
+from __future__ import with_statement
 from pathlib import Path
+
+import pymysql
 
 from main.component.database import Database
 from main.dto.executedFileDto import ExecutedFileDto
@@ -11,96 +13,99 @@ class ExecutedFileRepository:
         self.database = database
 
     def insert(self, executedFile: ExecutedFileDto):
-        self.database.cursor.execute(f"""
-            INSERT INTO executed_file(
-                file,
-                drops,
-                size,
-                recorded_at,
-                channel,
-                channelName,
-                duration,
-                title
-            ) VALUES (
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?
-            )
-        """, (
-            str(executedFile.file),
-            executedFile.drops,
-            executedFile.size,
-            executedFile.recorded_at,
-            executedFile.channel,
-            executedFile.channelName,
-            executedFile.duration,
-            executedFile.title
-        ))
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                INSERT INTO executed_file(
+                    file,
+                    drops,
+                    size,
+                    recorded_at,
+                    channel,
+                    channelName,
+                    duration,
+                    title
+                ) VALUES (
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?
+                )
+            """, (
+                str(executedFile.file),
+                executedFile.drops,
+                executedFile.size,
+                executedFile.recorded_at,
+                executedFile.channel,
+                executedFile.channelName,
+                executedFile.duration,
+                executedFile.title
+            ))
         self.database.commit()
 
     def find(self, id: int) -> ExecutedFileDto:
-        self.database.cursor.execute(f"""
-            SELECT
-                id,
-                file,
-                drops,
-                size,
-                recorded_at as "rec_at [timestamp]",
-                channel,
-                channelName,
-                duration,
-                title
-            FROM
-                executed_file
-            WHERE
-                id = {id}
-        """)
-        result: sqlite3.Row = self.database.cursor.fetchone()
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT
+                    id,
+                    file,
+                    drops,
+                    size,
+                    recorded_at,
+                    channel,
+                    channelName,
+                    duration,
+                    title
+                FROM
+                    executed_file
+                WHERE
+                    id = {id}
+            """)
+            result: pymysql.connections.MySQLResult = cursor.fetchone()
         return ExecutedFileDto(
-            id=result[0],
-            file=Path(result[1]),
-            drops=result[2],
-            size=result[3],
-            recorded_at=result[4],
-            channel=result[5],
-            channelName=result[6],
-            duration=result[7],
-            title=result[8]
+            id=result["id"],
+            file=Path(result["file"]),
+            drops=result["drops"],
+            size=result["size"],
+            recorded_at=result["recorded_at"],
+            channel=result["channel"],
+            channelName=result["channelName"],
+            duration=result["duration"],
+            title=result["title"]
         )
-    
+
     def findByFile(self, file:Path) -> ExecutedFileDto:
-        self.database.cursor.execute(f"""
-            SELECT
-                id,
-                file,
-                drops,
-                size,
-                recorded_at as "rec_at [timestamp]",
-                channel,
-                channelName,
-                duration,
-                title
-            FROM
-                executed_file
-            WHERE
-                file = ?
-        """, (
-            str(file),
-        ))
-        result: sqlite3.Row = self.database.cursor.fetchone()
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT
+                    id,
+                    file,
+                    drops,
+                    size,
+                    recorded_at,
+                    channel,
+                    channelName,
+                    duration,
+                    title
+                FROM
+                    executed_file
+                WHERE
+                    file = ?
+            """, (
+                str(file),
+            ))
+            result: pymysql.connections.MySQLResult = cursor.fetchone()
         return ExecutedFileDto(
-            id=result[0],
-            file=Path(result[1]),
-            drops=result[2],
-            size=result[3],
-            recorded_at=result[4],
-            channel=result[5],
-            channelName=result[6],
-            duration=result[7],
-            title=result[8]
+            id=result["id"],
+            file=Path(result["file"]),
+            drops=result["drops"],
+            size=result["size"],
+            recorded_at=result["recorded_at"],
+            channel=result["channel"],
+            channelName=result["channelName"],
+            duration=result["duration"],
+            title=result["title"]
         )

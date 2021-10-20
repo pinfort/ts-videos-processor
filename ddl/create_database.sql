@@ -1,24 +1,24 @@
-PRAGMA foreign_keys=true;
+CREATE TABLE `executed_file` (
+ `id` bigint(20) NOT NULL AUTO_INCREMENT,
+ `FILE` text COLLATE utf8mb4_bin NOT NULL,
+ `drops` int(11) NOT NULL,
+ `size` bigint(20) NOT NULL,
+ `recorded_at` datetime NOT NULL,
+ `channel` text COLLATE utf8mb4_bin NOT NULL,
+ `title` text COLLATE utf8mb4_bin NOT NULL,
+ `channelName` text COLLATE utf8mb4_bin NOT NULL,
+ `duration` double NOT NULL,
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `FILE` (`FILE`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
 
-CREATE TABLE "executed_file" (
-	"id"	INTEGER NOT NULL,
-	"file"	TEXT NOT NULL UNIQUE,
-	"drops"	INTEGER NOT NULL,
-	"size"	INTEGER NOT NULL,
-	"recorded_at"	NUMERIC NOT NULL,
-	"channel"	TEXT NOT NULL,
-	"title"	TEXT NOT NULL,
-	"channelName"	TEXT NOT NULL,
-	"duration"	REAL NOT NULL,
-	PRIMARY KEY("id")
-);
-
-CREATE TABLE "splitted_file" (
-	"id"	INTEGER NOT NULL,
-	"executed_file_id"	INTEGER NOT NULL,
-	"file"	TEXT NOT NULL,
-	"size"	INTEGER NOT NULL,
-	"duration"	REAL NOT NULL,
-	FOREIGN KEY("executed_file_id") REFERENCES "executed_file"("id"),
-	PRIMARY KEY("id")
-);
+CREATE TABLE `splitted_file` (
+ `id` bigint(20) NOT NULL AUTO_INCREMENT,
+ `executed_file_id` bigint(20) NOT NULL,
+ `file` text COLLATE utf8mb4_bin NOT NULL,
+ `size` bigint(20) NOT NULL,
+ `duration` double NOT NULL,
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `file` (`file`) USING HASH,
+ KEY `executed_file_id` (`executed_file_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin

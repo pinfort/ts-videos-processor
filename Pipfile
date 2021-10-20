@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 setuptools = "*"
 moviepy = "==2.0.0.dev2"
+pymysql = "*"
 
 [dev-packages]
 pytest = "*"
