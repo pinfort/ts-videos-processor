@@ -44,7 +44,8 @@ class ExecutedFileRepository:
                 executedFile.duration,
                 executedFile.title
             ))
-        self.database.commit()
+            self.database.commit()
+        self.database.reConnect()
 
     def find(self, id: int) -> ExecutedFileDto:
         with self.database.connection.cursor() as cursor:
@@ -65,7 +66,7 @@ class ExecutedFileRepository:
                     id = {id}
             """)
             result: pymysql.connections.MySQLResult = cursor.fetchone()
-        return ExecutedFileDto(
+        dto = ExecutedFileDto(
             id=result["id"],
             file=Path(result["file"]),
             drops=result["drops"],
@@ -76,6 +77,8 @@ class ExecutedFileRepository:
             duration=result["duration"],
             title=result["title"]
         )
+        self.database.reConnect()
+        return dto
 
     def findByFile(self, file:Path) -> ExecutedFileDto:
         with self.database.connection.cursor() as cursor:
@@ -98,7 +101,9 @@ class ExecutedFileRepository:
                 str(file),
             ))
             result: pymysql.connections.MySQLResult = cursor.fetchone()
-        return ExecutedFileDto(
+        if result is None:
+            raise Exception(f"""file not found. file:{file}""")
+        dto = ExecutedFileDto(
             id=result["id"],
             file=Path(result["file"]),
             drops=result["drops"],
@@ -109,3 +114,5 @@ class ExecutedFileRepository:
             duration=result["duration"],
             title=result["title"]
         )
+        self.database.reConnect()
+        return dto

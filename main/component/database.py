@@ -10,6 +10,9 @@ class Database:
     connection: pymysql.Connection
 
     def __init__(self):
+        self.connect()
+
+    def connect(self):
         self.connection = pymysql.connect(
             host=database.DATABASE_HOST,
             user=database.DATABASE_USER,
@@ -28,6 +31,10 @@ class Database:
 
     def disConnect(self):
         self.connection.close()
+
+    def reConnect(self):
+        self.disConnect()
+        self.connect()
 
     def __del__(self):
         self.disConnect()

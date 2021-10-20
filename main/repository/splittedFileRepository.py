@@ -32,7 +32,8 @@ class SplittedFileRepository:
                 splittedFile.size,
                 splittedFile.duration
             ))
-        self.database.commit()
+            self.database.commit()
+        self.database.reConnect()
 
     def find(self, id) -> SplittedFileDto:
         with self.database.connection.cursor() as cursor:
@@ -49,13 +50,15 @@ class SplittedFileRepository:
                     id = {id}
             """)
             result: pymysql.connections.MySQLResult = cursor.fetchone()
-        return SplittedFileDto(
+        dto = SplittedFileDto(
             id=result["id"],
             executedFileId=result["executed_file_id"],
             file=Path(result["file"]),
             size=result["size"],
             duration=result["duration"]
         )
+        self.database.reConnect()
+        return dto
 
     def selectByExecutedFileId(self, executedFileId: int) -> list[SplittedFileDto]:
         with self.database.connection.cursor() as cursor:
@@ -72,7 +75,7 @@ class SplittedFileRepository:
                     executed_file_id = {executedFileId}
             """)
             results: list[pymysql.connections.MySQLResult] = cursor.fetchall()
-        return [
+        dtoList = [
             SplittedFileDto(
                 id=result["id"],
                 executedFileId=result["executed_file_id"],
@@ -82,3 +85,5 @@ class SplittedFileRepository:
             )
             for result in results
         ]
+        self.database.reConnect()
+        return dtoList
