@@ -25,14 +25,14 @@ class ExecutedFileRepository:
                     duration,
                     title
                 ) VALUES (
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
                 )
             """, (
                 str(executedFile.file),
@@ -93,7 +93,7 @@ class ExecutedFileRepository:
                 FROM
                     executed_file
                 WHERE
-                    file = ?
+                    file = %s
             """, (
                 str(file),
             ))

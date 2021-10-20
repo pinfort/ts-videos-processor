@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from pathlib import Path
 from typing import Iterable
 
@@ -29,6 +29,11 @@ def processPath(path: Path):
         amatsukazeAddTask.amatsukaze(file)
 
 if __name__ == "__main__":
+    print(os.getenv("DATABASE_HOST"))
+    print(os.getenv("DATABASE_HOST"))
+    print(os.getenv("DATABASE_USER"))
+    print(os.getenv("DATABASE_PASSWORD"))
+    print(os.getenv("DATABASE_DATABASE"))
     dropCheck = DropChk()
     tsSplitter = TsSplitter()
     amatsukazeAddTask = AmatsukazeAddTask()

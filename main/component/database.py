@@ -15,6 +15,7 @@ class Database:
             user=database.DATABASE_USER,
             password=database.DATABASE_PASSWORD,
             db=database.DATABASE_DATABASE,
+            port=int(database.DATABASE_PORT),
             charset="utf8mb4",
             cursorclass=pymysql.cursors.DictCursor
         )

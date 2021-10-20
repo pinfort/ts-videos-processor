@@ -21,10 +21,10 @@ class SplittedFileRepository:
                     size,
                     duration
                 ) VALUES (
-                    ?,
-                    ?,
-                    ?,
-                    ?
+                    %s,
+                    %s,
+                    %s,
+                    %s
                 )
             """, (
                 splittedFile.executedFileId,
@@ -58,19 +58,20 @@ class SplittedFileRepository:
         )
 
     def selectByExecutedFileId(self, executedFileId: int) -> list[SplittedFileDto]:
-        self.database.cursor.execute(f"""
-            SELECT
-                id,
-                executed_file_id,
-                file,
-                size,
-                duration
-            FROM
-                splitted_file
-            WHERE
-                executed_file_id = {executedFileId}
-        """)
-        results: list[sqlite3.Row] = self.database.cursor.fetchall()
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT
+                    id,
+                    executed_file_id,
+                    file,
+                    size,
+                    duration
+                FROM
+                    splitted_file
+                WHERE
+                    executed_file_id = {executedFileId}
+            """)
+            results: list[pymysql.connections.MySQLResult] = cursor.fetchall()
         return [
             SplittedFileDto(
                 id=result[0],
