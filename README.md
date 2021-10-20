@@ -28,7 +28,7 @@ pipenv shell
 ## 注意事項
 
 - 対象ファイルの拡張子は.m2tsである必要がある。
-- 使用を始める前に、DDLをつかってPROJECT_ROOT/database/database.sqliteファイルを作成する必要がある。
+- 使用を始める前に、DDLをつかって適切にDBを用意する必要がある。mysqlに対応している。
 - 使用を始める前に、tsDropChkとtsSplitter, AmatsukazeをPROJECT_ROOT/libraries/に配置する必要がある。配置すべきパスは、main/command/dropChk.pyとmain/command/tsSplitter.py, main/command/amatsukazeAddTask.pyのAPPLICATION_PATHを参照。
 - 使用を始める前に、AmatsukazeServerが起動している必要がある。接続先ポート等も確認すること。
 - 操作の途中でファイル名から録画日時、チャンネル、タイトルを取得する処理がある。そのため、動画ファイルのタイトルは以下の構造である必要がある。
