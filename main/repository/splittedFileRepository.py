@@ -74,11 +74,11 @@ class SplittedFileRepository:
             results: list[pymysql.connections.MySQLResult] = cursor.fetchall()
         return [
             SplittedFileDto(
-                id=result[0],
-                executedFileId=result[1],
-                file=Path(result[2]),
-                size=result[3],
-                duration=result[4]
+                id=result["id"],
+                executedFileId=result["executed_file_id"],
+                file=Path(result["file"]),
+                size=result["size"],
+                duration=result["duration"]
             )
             for result in results
         ]
