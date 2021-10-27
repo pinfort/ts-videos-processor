@@ -1,3 +1,5 @@
+from logging import Logger, getLogger
+
 from main.component.database import Database
 from main.dto.executedFileDto import ExecutedFileDto
 from main.dto.splittedFileDto import SplittedFileDto
@@ -5,9 +7,11 @@ from main.repository.splittedFileRepository import SplittedFileRepository
 
 class MainSplittedFileFinder:
     splittedFileRepository: SplittedFileRepository
+    logger: Logger
 
     def __init__(self, database: Database) -> None:
         self.splittedFileRepository = SplittedFileRepository(database)
+        self.logger = getLogger(__name__)
 
     def splittedFileFromExecutedFile(self, executedFile: ExecutedFileDto) -> SplittedFileDto:
         """
@@ -17,7 +21,7 @@ class MainSplittedFileFinder:
         """
         splittedFiles: list[SplittedFileDto] = self.splittedFileRepository.selectByExecutedFileId(executedFile.id)
         splittedFileCount: int = len(splittedFiles)
-        print(f"{splittedFileCount} splitted files found. starting validation")
+        self.logger.info(f"{splittedFileCount} splitted files found. starting validation")
         mainFile: SplittedFileDto
 
         # TSSplitterの結果のファイル数に応じてファイルの確認処理を分岐
@@ -30,7 +34,7 @@ class MainSplittedFileFinder:
 
         self.validateMainFile(mainFile, executedFile)
 
-        print(f"""
+        self.logger.info(f"""
         main file found.
         id={mainFile.id},
         executeFileId={mainFile.executedFileId},

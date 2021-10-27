@@ -1,6 +1,8 @@
+import logging
 from main.dto.splittedFileDto import SplittedFileDto
 from main.dto.executedFileDto import ExecutedFileDto
 from pathlib import Path
+from logging import Logger, getLogger
 
 from main.component.executer import executeCommand
 from main.component.database import Database
@@ -14,11 +16,13 @@ class AmatsukazeAddTask():
     executedFileRepository: ExecutedFileRepository
     mainSplittedFileFinder: MainSplittedFileFinder
     database: Database
+    logger: Logger
 
     def __init__(self) -> None:
         self.database = Database()
         self.executedFileRepository = ExecutedFileRepository(self.database)
         self.mainSplittedFileFinder = MainSplittedFileFinder(self.database)
+        self.logger = getLogger(__name__)
 
 
     def amatsukaze(self, executedFilePath: Path):
@@ -44,7 +48,7 @@ class AmatsukazeAddTask():
         command.append("-s")
         command.append(profile_name)
         command.extend(self.OPTIONS)
-        print(f"""
+        self.logger.info(f"""
         executing Amatsukaze command.
         command: {" ".join(command)}
         """)

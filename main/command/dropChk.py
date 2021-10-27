@@ -1,4 +1,5 @@
 from pathlib import Path
+from logging import Logger, getLogger
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from main.dto.executedFileDto import ExecutedFileDto
@@ -13,21 +14,23 @@ class DropChk():
     OPTIONS = "-nolog -srcpath"
     executedFileRepository: ExecutedFileRepository
     database: Database
+    logger: Logger
 
     def __init__(self) -> None:
         self.database = Database()
         self.executedFileRepository = ExecutedFileRepository(self.database)
+        self.logger = getLogger(__name__)
 
     def dropChk(self, path: Path):
         if(not path.exists()):
             raise Exception(f"file not found path:{path}")
         command = DropChk.APPLICATION_PATH + " " + DropChk.OPTIONS + " \"" + str(path) + "\""
-        print(f"dropchk starting with command:{command} path:{path}")
+        self.logger.info(f"dropchk starting with command:{command} path:{path}")
         drops: int = executeCommand(command)
 
         executedFile: ExecutedFileDto = ExecutedFileDtoConverter.convert(filePath=path, drops=drops)
 
-        print(f"""
+        self.logger.info(f"""
             File executed.
             file={executedFile.file},
             drops={executedFile.drops},

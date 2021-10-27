@@ -1,5 +1,6 @@
 from pathlib import Path
 import glob
+from logging import Logger, getLogger
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from main.dto.splittedFileDto import SplittedFileDto
@@ -17,11 +18,13 @@ class TsSplitter():
     splittedFileRepository: SplittedFileRepository
     executedFileRepository: ExecutedFileRepository
     database: Database
+    logger: Logger
 
     def __init__(self):
         self.database = Database()
         self.splittedFileRepository = SplittedFileRepository(self.database)
         self.executedFileRepository = ExecutedFileRepository(self.database)
+        self.logger = getLogger(__name__)
 
     def tsSplitter(self, path: Path):
         # error check
@@ -30,9 +33,9 @@ class TsSplitter():
         originalFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
         existingFiles = self.findFiles(originalFile)
         if(len(existingFiles) > 0):
-            print(f"ERROR: splitted file already exist! original:{originalFile}")
+            self.logger.error(f"ERROR: splitted file already exist! original:{originalFile}")
             for file in existingFiles:
-                print(file)
+                self.logger.error(file)
             raise Exception("splitted file already exist!")
 
 
@@ -41,11 +44,11 @@ class TsSplitter():
             outputPath.mkdir()
 
         command = TsSplitter.APPLICATION_PATH + " " + TsSplitter.OPTIONS + " -OUT \"" + str(outputPath.absolute()) + "\" -SEP \"" + str(path.absolute()) + "\""
-        print(f"tsSpliter starting with command:{command}")
+        self.logger.info(f"tsSpliter starting with command:{command}")
         try:
             exitCode: int = executeCommand(command)
             if(exitCode != 0):
-                print("splitting file become error!")
+                self.logger.error("splitting file become error!")
                 raise Exception("splitting file become error!")
         except:
             pass
@@ -55,9 +58,9 @@ class TsSplitter():
             raise Exception("splitted file not found")
 
         for file in files:
-            print(f"found splitted file. path:{file}")
+            self.logger.info(f"found splitted file. path:{file}")
             self.splittedFileRepository.insert(file)
-            print(f"""
+            self.logger.info(f"""
             File Splitting executed.
             id={file.id},
             executeFileId={file.executedFileId},
@@ -70,7 +73,7 @@ class TsSplitter():
         files: list[SplittedFileDto] = list()
         directory = originalFile.file.parent.joinpath(TsSplitter.WORK_DIRECTORY)
         pattern = glob.escape(originalFile.file.stem) + "*.m2ts"
-        print(f"search pattern {pattern}")
+        self.logger.debug(f"search pattern {pattern}")
         for file in directory.glob(pattern):
             files.append(
                 SplittedFileDtoConverter.convert(
