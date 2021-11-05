@@ -1,0 +1,5 @@
+import os
+
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_PROCESS_TOPIC = os.getenv("REDIS_PROCESS_TOPIC")

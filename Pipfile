@@ -7,7 +7,7 @@ name = "pypi"
 setuptools = "*"
 moviepy = "==2.0.0.dev2"
 pymysql = "*"
-rq = "*"
+redis = "*"
 
 [dev-packages]
 pytest = "*"
