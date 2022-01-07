@@ -4,6 +4,10 @@
     "formatters": {
         "simple": {
             "format": "%(asctime)s %(name)s:%(lineno)s %(funcName)s [%(levelname)s]: %(message)s"
+        },
+        "json": {
+            "format": "%(asctime)s %(created)s %(filename)s %(funcName)s %(levelname)s %(levelno)s %(lineno)s %(module)s %(msecs)s %(message)s %(name)s %(pathname)s %(process)s %(processName)s %(relativeCreated)s %(thread)s %(threadName)s",
+            "class": "pythonjsonlogger.jsonlogger.JsonFormatter"
         }
     },
 
@@ -19,19 +23,26 @@
             "level": "INFO",
             "formatter": "simple",
             "filename": "logs/app.log"
+        },
+        "logstashHandler": {
+            "class": "logstash_async.handler.SynchronousLogstashHandler",
+            "level": "INFO",
+            "formatter": "json",
+            "host": "192.168.2.56",
+            "port": 8080
         }
     },
 
     "loggers": {
         "__main__": {
             "level": "DEBUG",
-            "handlers": ["consoleHandler", "fileHandler"],
+            "handlers": ["consoleHandler", "fileHandler", "logstashHandler"],
             "propagate": false
         }
     },
 
     "root": {
         "level": "INFO",
-        "handlers": ["consoleHandler", "fileHandler"]
+        "handlers": ["consoleHandler", "fileHandler", "logstashHandler"]
     }
 }

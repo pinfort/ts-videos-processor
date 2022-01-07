@@ -1,5 +1,6 @@
 from __future__ import with_statement
 from pathlib import Path
+from typing import Union
 
 import pymysql
 
@@ -47,7 +48,7 @@ class ExecutedFileRepository:
             self.database.commit()
         self.database.reConnect()
 
-    def find(self, id: int) -> ExecutedFileDto:
+    def find(self, id: int) -> Union[ExecutedFileDto, None]:
         with self.database.connection.cursor() as cursor:
             cursor.execute(f"""
                 SELECT
@@ -66,6 +67,8 @@ class ExecutedFileRepository:
                     id = {id}
             """)
             result: pymysql.connections.MySQLResult = cursor.fetchone()
+        if result is None:
+            return None
         dto = ExecutedFileDto(
             id=result["id"],
             file=Path(result["file"]),
@@ -80,7 +83,7 @@ class ExecutedFileRepository:
         self.database.reConnect()
         return dto
 
-    def findByFile(self, file:Path) -> ExecutedFileDto:
+    def findByFile(self, file:Path) -> Union[ExecutedFileDto, None]:
         with self.database.connection.cursor() as cursor:
             cursor.execute(f"""
                 SELECT
@@ -102,7 +105,7 @@ class ExecutedFileRepository:
             ))
             result: pymysql.connections.MySQLResult = cursor.fetchone()
         if result is None:
-            raise Exception(f"""file not found. file:{file}""")
+            return None
         dto = ExecutedFileDto(
             id=result["id"],
             file=Path(result["file"]),

@@ -10,6 +10,7 @@ from main.component.database import Database
 from main.component.executer import executeCommand
 from main.repository.splittedFileRepository import SplittedFileRepository
 from main.repository.executedFileRepository import ExecutedFileRepository
+from main.component.mainSplittedFileFinder import MainSplittedFileFinder
 
 class TsSplitter():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.parent.joinpath("libraries\\TsSplitter128\\TsSplitter.exe").absolute())
@@ -24,9 +25,10 @@ class TsSplitter():
         self.database = Database()
         self.splittedFileRepository = SplittedFileRepository(self.database)
         self.executedFileRepository = ExecutedFileRepository(self.database)
+        self.mainSplittedFileFinder = MainSplittedFileFinder(self.database)
         self.logger = getLogger(__name__)
 
-    def tsSplitter(self, path: Path):
+    def tsSplitter(self, path: Path) -> SplittedFileDto:
         # error check
         if(not path.exists()):
             raise Exception(f"file not found path:{path}")
@@ -68,6 +70,11 @@ class TsSplitter():
             size={file.size},
             duration={file.duration}
             """)
+
+        executedFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
+        splittedFile: SplittedFileDto = self.mainSplittedFileFinder.splittedFileFromExecutedFile(executedFile)
+        # メインファイルのオブジェクトを返す
+        return splittedFile
 
     def findFiles(self, originalFile:ExecutedFileDto) -> list[SplittedFileDto]:
         files: list[SplittedFileDto] = list()

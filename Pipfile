@@ -8,6 +8,10 @@ setuptools = "*"
 moviepy = "==2.0.0.dev2"
 pymysql = "*"
 redis = "*"
+pysmb = "*"
+python-dotenv = "*"
+python-logstash-async = "*"
+python-json-logger = "*"
 
 [dev-packages]
 pytest = "*"

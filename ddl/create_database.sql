@@ -10,7 +10,7 @@ CREATE TABLE `executed_file` (
  `duration` double NOT NULL,
  PRIMARY KEY (`id`),
  UNIQUE KEY `file` (`file`) USING HASH
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE `splitted_file` (
  `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -21,4 +21,16 @@ CREATE TABLE `splitted_file` (
  PRIMARY KEY (`id`),
  UNIQUE KEY `file` (`file`) USING HASH,
  KEY `executed_file_id` (`executed_file_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `created_file` (
+ `id` bigint(20) NOT NULL AUTO_INCREMENT,
+ `splitted_file_id` bigint(20) NOT NULL,
+ `file` text COLLATE utf8mb4_bin NOT NULL,
+ `size` bigint(20) NOT NULL,
+ `mime` varchar(100),
+ `encoding` varchar(100),
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `file` (`file`) USING HASH,
+ KEY `splitted_file_id` (`splitted_file_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

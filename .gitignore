@@ -1,6 +1,8 @@
+.vscode/
 database/*
 libraries/*
 __pycache__/
 .pytest_cache/
 logs/*
 !logs/.gitkeep
+.env

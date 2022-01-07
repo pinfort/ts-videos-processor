@@ -32,7 +32,8 @@ class MainSplittedFileFinder:
         else:
             raise Exception(f"unexpected splitted file count! file_count:{splittedFileCount} executed_file_id:{executedFile.id}")
 
-        self.validateMainFile(mainFile, executedFile)
+        if not self.validateMainFile(mainFile, executedFile):
+            raise Exception(f"main file not found. executedFile:{executedFile.file}, executedFileId:{executedFile.id}")
 
         self.logger.info(f"""
         main file found.
@@ -61,7 +62,7 @@ class MainSplittedFileFinder:
 
         # ゴミファイルの長さが長いと、何らかの異常がある場合がある
         if(gabageFile.duration > 20.0):
-            raise Exception("gabage file duration id grater than 20.0!")
+            raise Exception("gabage file duration is grater than 20.0!")
 
         # ゴミファイルのファイルサイズはメインファイルの10%以下
         if gabageFile.size > (mainFile.size * 0.1):
@@ -76,17 +77,22 @@ class MainSplittedFileFinder:
 
         return splittedFile
 
-    def validateMainFile(self, splittedFile: SplittedFileDto, executedFile: ExecutedFileDto) -> None:
+    def validateMainFile(self, splittedFile: SplittedFileDto, executedFile: ExecutedFileDto) -> bool:
         if splittedFile is None:
-            raise Exception("splitted file is None")
+            self.logger.warn("splitted file is None")
+            return False
 
         if splittedFile.duration < 1:
-            raise Exception("length of file is too short")
+            self.logger.warn("length of file is too short")
+            return False
 
         if executedFile.drops > 1000:
-            raise Exception(f"too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}")
+            self.logger.warn(f"too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}")
+            return False
 
         # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は20秒以下0秒以上。
         durationDifference: int = int(executedFile.duration) - int(splittedFile.duration)
         if durationDifference < 0 or durationDifference > 20:
-            raise Exception(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}")
+            self.logger.warn(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}")
+            return False
+        return True

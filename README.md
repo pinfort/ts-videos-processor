@@ -7,6 +7,8 @@
 - tsDropChkによるドロップのチェックとDBへの記録
 - tsSplitterによるファイルの分割とDBへの記録
 - tssplitterによって分割されたtsファイルをAmatsukazeのキューに追加
+- 分割されたtsファイルの内メインファイルを圧縮してNASに移動
+- Amatsukazeでのエンコード後にエンコードで生成されたファイル群をNASに移動するためのバッチファイルとスクリプト
 
 Amatsukazeに登録するtsファイルはmainSplittedFileFinderで選択抽出している。環境によってこれを変更する必要があると思われる。
 

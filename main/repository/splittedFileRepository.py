@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from typing import Union
 
 import pymysql
 
@@ -35,7 +36,7 @@ class SplittedFileRepository:
             self.database.commit()
         self.database.reConnect()
 
-    def find(self, id) -> SplittedFileDto:
+    def find(self, id) -> Union[SplittedFileDto, None]:
         with self.database.connection.cursor() as cursor:
             cursor.execute(f"""
                 SELECT
@@ -50,6 +51,8 @@ class SplittedFileRepository:
                     id = {id}
             """)
             result: pymysql.connections.MySQLResult = cursor.fetchone()
+        if result is None:
+            return None
         dto = SplittedFileDto(
             id=result["id"],
             executedFileId=result["executed_file_id"],
@@ -87,3 +90,32 @@ class SplittedFileRepository:
         ]
         self.database.reConnect()
         return dtoList
+
+    def findByFile(self, file: Path):
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT
+                    id,
+                    executed_file_id,
+                    file,
+                    size,
+                    duration
+                FROM
+                    splitted_file
+                WHERE
+                    file = %s
+            """, (
+                str(file),
+            ))
+            result: pymysql.connections.MySQLResult = cursor.fetchone()
+        if result is None:
+            return None
+        dto = SplittedFileDto(
+            id=result["id"],
+            executedFileId=result["executed_file_id"],
+            file=Path(result["file"]),
+            size=result["size"],
+            duration=result["duration"]
+        )
+        self.database.reConnect()
+        return dto
