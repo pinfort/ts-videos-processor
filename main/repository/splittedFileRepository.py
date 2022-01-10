@@ -6,6 +6,7 @@ import pymysql
 
 from main.component.database import Database
 from main.dto.splittedFileDto import SplittedFileDto
+from main.enum.splittedFileStatus import SplittedFileStatus
 
 class SplittedFileRepository:
     database: Database
@@ -20,8 +21,10 @@ class SplittedFileRepository:
                     executed_file_id,
                     file,
                     size,
-                    duration
+                    duration,
+                    status
                 ) VALUES (
+                    %s,
                     %s,
                     %s,
                     %s,
@@ -31,7 +34,8 @@ class SplittedFileRepository:
                 splittedFile.executedFileId,
                 str(splittedFile.file),
                 splittedFile.size,
-                splittedFile.duration
+                splittedFile.duration,
+                splittedFile.status.name
             ))
             self.database.commit()
         self.database.reConnect()
@@ -44,7 +48,8 @@ class SplittedFileRepository:
                     executed_file_id,
                     file,
                     size,
-                    duration
+                    duration,
+                    status
                 FROM
                     splitted_file
                 WHERE
@@ -58,7 +63,8 @@ class SplittedFileRepository:
             executedFileId=result["executed_file_id"],
             file=Path(result["file"]),
             size=result["size"],
-            duration=result["duration"]
+            duration=result["duration"],
+            status=SplittedFileStatus[result["status"]],
         )
         self.database.reConnect()
         return dto
@@ -71,7 +77,8 @@ class SplittedFileRepository:
                     executed_file_id,
                     file,
                     size,
-                    duration
+                    duration,
+                    status
                 FROM
                     splitted_file
                 WHERE
@@ -84,14 +91,15 @@ class SplittedFileRepository:
                 executedFileId=result["executed_file_id"],
                 file=Path(result["file"]),
                 size=result["size"],
-                duration=result["duration"]
+                duration=result["duration"],
+                status=SplittedFileStatus[result["status"]],
             )
             for result in results
         ]
         self.database.reConnect()
         return dtoList
 
-    def findByFile(self, file: Path):
+    def findByFile(self, file: Path) -> SplittedFileDto:
         with self.database.connection.cursor() as cursor:
             cursor.execute(f"""
                 SELECT
@@ -99,7 +107,8 @@ class SplittedFileRepository:
                     executed_file_id,
                     file,
                     size,
-                    duration
+                    duration,
+                    status
                 FROM
                     splitted_file
                 WHERE
@@ -115,7 +124,38 @@ class SplittedFileRepository:
             executedFileId=result["executed_file_id"],
             file=Path(result["file"]),
             size=result["size"],
-            duration=result["duration"]
+            duration=result["duration"],
+            status=SplittedFileStatus[result["status"]],
         )
         self.database.reConnect()
         return dto
+
+    def deleteByExecutedFileId(self, executedFileId: int) -> None:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                DELETE
+                FROM
+                    splitted_file
+                WHERE
+                    executed_file_id = %s
+            """, (
+                str(executedFileId),
+            ))
+            self.database.commit()
+        self.database.reConnect()
+
+    def updateStatus(self, id: int, status: SplittedFileStatus) -> None:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                UPDATE
+                    splitted_file
+                SET
+                    status = %s
+                WHERE
+                    executed_file_id = %s
+            """, (
+                status.name,
+                id,
+            ))
+            self.database.commit()
+        self.database.reConnect()

@@ -40,3 +40,6 @@ class AmatsukazeAddTask():
         """)
 
         executeCommand(commands=command)
+
+    def rollback(self, splittedFile: SplittedFileDto) -> None:
+        self.logger.warn("amatsukazeAddTask rollbacking. nothing todo.")

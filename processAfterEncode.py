@@ -11,7 +11,10 @@ from logging import Logger, config, getLogger
 from main.component.database import Database
 
 from main.component.nas import Nas
+from main.enum.createdFileStatus import CreatedFileStatus
+from main.enum.programStatus import ProgramStatus
 from main.repository.createdFileRepository import CreatedFileRepository
+from main.repository.programRepository import ProgramRepository
 from main.repository.splittedFileRepository import SplittedFileRepository
 from main.dto.createdFileDto import CreatedFileDto
 from main.config.nas import NAS_ROOT_DIR
@@ -96,7 +99,8 @@ class ProcessAfterEncode:
     nas: Nas
     createdFileRepository: CreatedFileRepository
     splittedFileRepository: SplittedFileRepository
-    databse: Database
+    programRepository: ProgramRepository
+    database: Database
 
     def __init__(self) -> None:
         dotenv_path = join(dirname(__file__), '.env')
@@ -107,10 +111,11 @@ class ProcessAfterEncode:
         self.logger = getLogger(__name__)
         self.__loadEnvs()
         self.logger.info(self.files)
-        self.databse = Database()
+        self.database = Database()
         self.nas = Nas()
-        self.createdFileRepository = CreatedFileRepository(self.databse)
-        self.splittedFileRepository = SplittedFileRepository(self.databse)
+        self.createdFileRepository = CreatedFileRepository(self.database)
+        self.splittedFileRepository = SplittedFileRepository(self.database)
+        self.programRepository = ProgramRepository(self.database)
 
     def __loadEnvs(self) -> None:
         self.item_id = int(os.getenv("ITEM_ID"))
@@ -142,7 +147,10 @@ class ProcessAfterEncode:
 
         self.files = [Path(file) for file in os.getenv("FILES").split(";")]
 
-    def registerFiles(self):
+    def registerFiles(self) -> int:
+        """
+        @return executedFileId
+        """
         splittedFileId: int = 0
         # ファイルはsuccessedフォルダに移動されているのでそれを加味して検索
         original_file_path: Path = self.in_path.parent.parent.joinpath(self.in_path.name)
@@ -163,16 +171,23 @@ class ProcessAfterEncode:
                     size=file.stat().st_size,
                     mime=mime[0],
                     encoding=mime[1],
+                    status=CreatedFileStatus.ENCODE_SUCCESS,
                 )
             )
             self.logger.info(f"created file registered. file:{file}, splittedFileId:{splittedFileId}")
+        return original_file.executedFileId
 
     def moveFiles(self):
         for file in self.files:
             target_directory: Path = NAS_ROOT_DIR.joinpath(file.parent.parent.parent.name[0:1]).joinpath(file.parent.parent.parent.name)
+            createdFile: CreatedFileDto = self.createdFileRepository.findByFile(target_directory.joinpath(file.name))
             self.nas.save(file, target_directory)
+            self.createdFileRepository.updateStatus(createdFile.id, CreatedFileStatus.FILE_MOVED)
             self.logger.info(f"file uploaded. file:{file.name}, target:{target_directory}")
             file.unlink()
+
+    def finishProcess(self, executedFileId: int):
+        self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.COMPLETED)
 
     def notifyError(self):
         self.logger.error(f"encode failed. amatsukaze_id:{self.item_id}, in_path:{self.in_path}")
@@ -184,9 +199,10 @@ class ProcessAfterEncode:
             return
 
         # ファイル群をDBに登録
-        self.registerFiles()
+        executedFileId: int = self.registerFiles()
         # エンコード済みファイルをNASに移動
         self.moveFiles()
+        self.finishProcess(executedFileId)
         self.logger.info(f"uploading file completed. targets:{self.files}")
 
 def main():

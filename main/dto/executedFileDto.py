@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from datetime import datetime
 
+from main.enum.executedFileStatus import ExecutedFileStatus
+
 @dataclass
 class ExecutedFileDto:
     id: int
@@ -13,3 +15,4 @@ class ExecutedFileDto:
     channelName: str
     title: str
     duration: float
+    status: ExecutedFileStatus

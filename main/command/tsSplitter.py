@@ -1,3 +1,4 @@
+from os import unlink
 from pathlib import Path
 import glob
 from logging import Logger, getLogger
@@ -8,6 +9,7 @@ from main.dto.executedFileDto import ExecutedFileDto
 from main.dto.converter.splittedFileDtoConverter import SplittedFileDtoConverter
 from main.component.database import Database
 from main.component.executer import executeCommand
+from main.enum.executedFileStatus import ExecutedFileStatus
 from main.repository.splittedFileRepository import SplittedFileRepository
 from main.repository.executedFileRepository import ExecutedFileRepository
 from main.component.mainSplittedFileFinder import MainSplittedFileFinder
@@ -38,8 +40,7 @@ class TsSplitter():
             self.logger.error(f"ERROR: splitted file already exist! original:{originalFile}")
             for file in existingFiles:
                 self.logger.error(file)
-            raise Exception("splitted file already exist!")
-
+            raise Exception(f"splitted file already exist! original:{originalFile}")
 
         outputPath = path.parent.joinpath(TsSplitter.WORK_DIRECTORY)
         if(not outputPath.exists()):
@@ -57,7 +58,7 @@ class TsSplitter():
 
         files = self.findFiles(originalFile)
         if(len(files) == 0):
-            raise Exception("splitted file not found")
+            raise Exception(f"splitted file not found. original:{originalFile}")
 
         for file in files:
             self.logger.info(f"found splitted file. path:{file}")
@@ -68,10 +69,12 @@ class TsSplitter():
             executeFileId={file.executedFileId},
             file={file.file},
             size={file.size},
-            duration={file.duration}
+            duration={file.duration},
+            status={file.status}
             """)
 
         executedFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
+        self.executedFileRepository.updateStatus(executedFile.id, ExecutedFileStatus.SPLITTED)
         splittedFile: SplittedFileDto = self.mainSplittedFileFinder.splittedFileFromExecutedFile(executedFile)
         # メインファイルのオブジェクトを返す
         return splittedFile
@@ -89,3 +92,21 @@ class TsSplitter():
                 )
             )
         return files
+
+    def rollback(self, path: Path) -> None:
+        originalFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
+        self.logger.warn(f"tsSplitterTask. rollbacking and deleting files and DB records. executedFile:{originalFile.file}, executedFileId:{originalFile.id}")
+
+        # 実ファイル削除
+        directory = originalFile.file.parent.joinpath(TsSplitter.WORK_DIRECTORY)
+        pattern = glob.escape(originalFile.file.stem) + "*.m2ts"
+        self.logger.debug(f"search pattern {pattern}")
+        for file in directory.glob(pattern):
+            self.logger.warn(f"tsSplitter rollback task. deleting file. file:{file}")
+            if(file.exists()):
+                file.unlink()
+
+        # DB削除
+        self.splittedFileRepository.deleteByExecutedFileId(originalFile.id)
+
+        self.logger.warn(f"tsSplitter rollback task completed. executedFile:{originalFile.file}, executedFileId:{originalFile.id}")

@@ -4,6 +4,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from main.dto.splittedFileDto import SplittedFileDto
 from main.dto.executedFileDto import ExecutedFileDto
+from main.enum.splittedFileStatus import SplittedFileStatus
 
 class SplittedFileDtoConverter:
     @staticmethod
@@ -21,5 +22,6 @@ class SplittedFileDtoConverter:
             executedFileId=originalFile.id,
             file=filePath,
             size=filePath.stat().st_size,
-            duration=duration
+            duration=duration,
+            status=SplittedFileStatus.REGISTERED
         )

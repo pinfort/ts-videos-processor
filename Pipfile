@@ -12,6 +12,7 @@ pysmb = "*"
 python-dotenv = "*"
 python-logstash-async = "*"
 python-json-logger = "*"
+requests = "*"
 
 [dev-packages]
 pytest = "*"

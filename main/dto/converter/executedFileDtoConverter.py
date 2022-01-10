@@ -6,6 +6,7 @@ from pathlib import Path
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from main.component.fileName import FileName
+from main.enum.executedFileStatus import ExecutedFileStatus
 
 class ExecutedFileDtoConverter:
     @staticmethod
@@ -28,5 +29,6 @@ class ExecutedFileDtoConverter:
             channel=fileName.channel,
             channelName=fileName.channelName,
             duration=duration,
-            title=fileName.title
+            title=fileName.title,
+            status=ExecutedFileStatus.DROPCHECKED,
         )

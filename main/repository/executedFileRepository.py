@@ -6,6 +6,7 @@ import pymysql
 
 from main.component.database import Database
 from main.dto.executedFileDto import ExecutedFileDto
+from main.enum.executedFileStatus import ExecutedFileStatus
 
 class ExecutedFileRepository:
     database: Database
@@ -24,8 +25,10 @@ class ExecutedFileRepository:
                     channel,
                     channelName,
                     duration,
-                    title
+                    title,
+                    status
                 ) VALUES (
+                    %s,
                     %s,
                     %s,
                     %s,
@@ -43,7 +46,8 @@ class ExecutedFileRepository:
                 executedFile.channel,
                 executedFile.channelName,
                 executedFile.duration,
-                executedFile.title
+                executedFile.title,
+                executedFile.status.name
             ))
             self.database.commit()
         self.database.reConnect()
@@ -60,7 +64,8 @@ class ExecutedFileRepository:
                     channel,
                     channelName,
                     duration,
-                    title
+                    title,
+                    status
                 FROM
                     executed_file
                 WHERE
@@ -78,7 +83,8 @@ class ExecutedFileRepository:
             channel=result["channel"],
             channelName=result["channelName"],
             duration=result["duration"],
-            title=result["title"]
+            title=result["title"],
+            status=ExecutedFileStatus[result["status"]],
         )
         self.database.reConnect()
         return dto
@@ -95,7 +101,8 @@ class ExecutedFileRepository:
                     channel,
                     channelName,
                     duration,
-                    title
+                    title,
+                    status
                 FROM
                     executed_file
                 WHERE
@@ -115,7 +122,38 @@ class ExecutedFileRepository:
             channel=result["channel"],
             channelName=result["channelName"],
             duration=result["duration"],
-            title=result["title"]
+            title=result["title"],
+            status=ExecutedFileStatus[result["status"]],
         )
         self.database.reConnect()
         return dto
+
+    def deleteByFile(self, file:Path) -> None:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                DELETE
+                FROM
+                    executed_file
+                WHERE
+                    file = %s
+            """, (
+                str(file),
+            ))
+            self.database.commit()
+        self.database.reConnect()
+
+    def updateStatus(self, id: int, status: ExecutedFileStatus) -> None:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                UPDATE
+                    executed_file
+                SET
+                    status = %s
+                WHERE
+                    id = %s
+            """, (
+                status.name,
+                id,
+            ))
+            self.database.commit()
+        self.database.reConnect()

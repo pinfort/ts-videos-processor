@@ -1,5 +1,6 @@
-import sys
+import traceback
 import json
+import requests
 from pathlib import Path
 from typing import Iterable
 from logging import Logger, config, getLogger
@@ -10,6 +11,8 @@ from main.command.dropChk import DropChk
 from main.command.tsSplitter import TsSplitter
 from main.command.amatsukazeAddTask import AmatsukazeAddTask
 from main.command.compressAndSave import CompressAndSave
+from main.config.slack import SLACK_WEBHOOK_URL
+from main.dto.splittedFileDto import SplittedFileDto
 
 class TsVideosProcessor:
     """
@@ -41,7 +44,10 @@ class TsVideosProcessor:
 
         if(not path.exists):
             self.logger.error(f"""path not exist path:{str(path)}""")
-            sys.exit(1)
+            requests.post(SLACK_WEBHOOK_URL, json.dumps({
+                    "text" : f"""path not exist path:{str(path)}""",
+                }))
+            return
 
         if(path.is_dir()):
             self.logger.info("given path is directory")
@@ -55,7 +61,10 @@ class TsVideosProcessor:
             try:
                 self.processFile(file)
             except Exception as e:
-                self.logger.error("processing file failed. reason:" + str(e))
+                self.logger.error(f"processing file failed. file:{file} reason:{e} stackTrace:{traceback.format_exc()}")
+                requests.post(SLACK_WEBHOOK_URL, json.dumps({
+                    "text" : f"processing file failed. file:{file} reason:{e}",
+                }))
         self.logger.info("processing path finished.")
 
     def processFile(self, file: Path):
@@ -63,7 +72,36 @@ class TsVideosProcessor:
         一ファイルごとに処理を行います
         """
         self.logger.info(f"processing file:{file}")
-        self.dropCheck.dropChk(file)
-        splittedFile = self.tsSplitter.tsSplitter(file)
-        self.compressAndSave.execute(splittedFile)
-        self.amatsukazeAddTask.amatsukaze(splittedFile)
+        try:
+            result: bool = self.dropCheck.dropChk(file)
+            if not result:
+                self.logger.info(f"the file already registered! file:{file}")
+                return
+        except Exception as e:
+            self.dropCheck.rollback(file)
+            raise e
+
+        splittedFile: SplittedFileDto
+        try:
+            splittedFile = self.tsSplitter.tsSplitter(file)
+        except Exception as e:
+            self.tsSplitter.rollback(file)
+            self.dropCheck.rollback(file)
+            raise e
+
+        try:
+            self.compressAndSave.execute(splittedFile)
+        except Exception as e:
+            self.compressAndSave.rollback(splittedFile)
+            self.tsSplitter.rollback(file)
+            self.dropCheck.rollback(file)
+            raise e
+
+        try:
+            self.amatsukazeAddTask.amatsukaze(splittedFile)
+        except Exception as e:
+            self.amatsukazeAddTask.rollback(splittedFile)
+            self.compressAndSave.rollback(splittedFile)
+            self.tsSplitter.rollback(file)
+            self.dropCheck.rollback(file)
+            raise e
