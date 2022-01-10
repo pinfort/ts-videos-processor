@@ -66,7 +66,6 @@ class ProgramRepository:
                 name,
             ))
             result: pymysql.connections.MySQLResult = cursor.fetchone()
-            print(f"resultis ----------- {result}")
         if result is None:
             return None
         dto = ProgramDto(
