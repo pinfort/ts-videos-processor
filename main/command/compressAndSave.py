@@ -54,6 +54,7 @@ class CompressAndSave:
                 status=CreatedFileStatus.FILE_MOVED,
             )
         )
+        self.logger.info(f"updating id:{splittedFile.id}, status:{SplittedFileStatus.COMPRESS_SAVED}")
         self.splittedFileRespository.updateStatus(splittedFile.id, SplittedFileStatus.COMPRESS_SAVED)
         self.logger.info(f"file compressed and saved. target:{target_directory.joinpath(compressed_path.name)}")
         compressed_path.unlink()
