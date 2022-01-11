@@ -1,6 +1,7 @@
 import gzip
 from logging import Logger, getLogger
 from pathlib import Path
+import shutil
 
 class Compress:
     logger: Logger
@@ -13,6 +14,7 @@ class Compress:
             self.logger.error("compress target file already exist. if allow overwrite it, set force = true.")
             return False
         with gzip.open(compressed_path, mode='wb') as target:
-            self.logger.info(f"compressing... original:{original_path}, target:{compressed_path}")
-            target.write(original_path.read_bytes())
+            with original_path.open(mode='rb') as original:
+                self.logger.info(f"compressing... original:{original_path}, target:{compressed_path}")
+                shutil.copyfileobj(original, target)
         return True
