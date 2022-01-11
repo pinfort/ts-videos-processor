@@ -48,7 +48,7 @@ class MainSplittedFileFinder:
     def splittedFileCountIsTwo(self, executedFile: ExecutedFileDto, splittedFiles: list[SplittedFileDto]) -> SplittedFileDto:
         # TSSplitterの結果は２ファイルを期待
         if(len(splittedFiles) != 2):
-            raise Exception(f"splitted file counts not 2! executed_file_id:{executedFile.id}")
+            raise Exception(f"splitted file counts not 2! executedFile:{executedFile.file}, executedFileId:{executedFile.id}")
         mainFile: SplittedFileDto
         gabageFile: SplittedFileDto
 
@@ -62,11 +62,11 @@ class MainSplittedFileFinder:
 
         # ゴミファイルの長さが長いと、何らかの異常がある場合がある
         if(gabageFile.duration > 20.0):
-            raise Exception("gabage file duration is grater than 20.0!")
+            raise Exception(f"main file not found. gabage file duration is grater than 20.0! executedFile:{executedFile.file}, executedFileId:{executedFile.id}")
 
         # ゴミファイルのファイルサイズはメインファイルの10%以下
         if gabageFile.size > (mainFile.size * 0.1):
-            raise Exception("gabage file size is grater than 10%% of mainfile.")
+            raise Exception(f"main file not found. gabage file size is grater than 10%% of mainfile. executedFile:{executedFile.file}, executedFileId:{executedFile.id}")
 
         return mainFile
 
@@ -80,19 +80,19 @@ class MainSplittedFileFinder:
     def validateMainFile(self, splittedFile: SplittedFileDto, executedFile: ExecutedFileDto) -> bool:
         if splittedFile is None:
             self.logger.warn("splitted file is None")
-            return False
+            raise Exception(f"main file not found. splitted file is None executedFile:{executedFile.file}, executedFileId:{executedFile.id}")
 
         if splittedFile.duration < 1:
             self.logger.warn("length of file is too short")
-            return False
+            raise Exception(f"main file not found. length of file is too short executedFile:{executedFile.file}, executedFileId:{executedFile.id}")
 
         if executedFile.drops > 1000:
             self.logger.warn(f"too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}")
-            return False
+            raise Exception(f"main file not found. too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}, executedFile:{executedFile.file}")
 
         # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は20秒以下0秒以上。
         durationDifference: int = int(executedFile.duration) - int(splittedFile.duration)
         if durationDifference < 0 or durationDifference > 20:
             self.logger.warn(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}")
-            return False
+            raise Exception(f"main file not found. duration between original and splitted is too different! executed_file_id:{executedFile.id}, executedFile:{executedFile.file}")
         return True
