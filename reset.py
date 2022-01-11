@@ -55,6 +55,9 @@ class Reset:
             if f.file.exists():
                 self.logger.info(f"splitted file will be deleted. path:{f.file}")
                 f.file.unlink()
+            if f.file.parent.joinpath("succeeded").joinpath(f.file.name).exists():
+                self.logger.info(f"splitted file will be deleted. path:{f.file.parent.joinpath('succeeded').joinpath(f.file.name)}")
+                f.file.parent.joinpath("succeeded").joinpath(f.file.name).unlink()
 
         self.splittedFileRepository.deleteByExecutedFileId(executedFile.id)
         self.logger.info(f"splitted file deleted. executedFileId:{executedFile.id}")
