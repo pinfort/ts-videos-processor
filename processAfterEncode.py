@@ -145,7 +145,7 @@ class ProcessAfterEncode:
         self.json_path = Path(os.getenv("JSON_PATH"))
         self.log_path = Path(os.getenv("LOG_PATH"))
 
-        self.files = [Path(file) for file in os.getenv("FILES").split(";")]
+        self.files = [Path(file) for file in os.getenv("FILES", "").split(";")]
 
     def registerFiles(self) -> int:
         """
