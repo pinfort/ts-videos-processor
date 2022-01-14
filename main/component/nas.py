@@ -71,3 +71,10 @@ class Nas:
             return True
         except OperationFailure as e:
             return False
+
+    def rename(self, old: Path, new: Path) -> bool:
+        if self.fileOrDirectoryExists(new):
+            self.logger.info(f"file or directory already exists. aborting. target:{new}")
+            return False
+        self.connection.rename(nas.NAS_SERVICE_NAME, str(old), str(new))
+        return True

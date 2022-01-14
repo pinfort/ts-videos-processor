@@ -184,3 +184,19 @@ class CreatedFileRepository:
         )
         self.database.reConnect()
         return dto
+
+    def updateFile(self, id: int, file: Path) -> None:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                UPDATE
+                    created_file
+                SET
+                    file = %s
+                WHERE
+                    id = %s
+            """, (
+                str(file),
+                id
+            ))
+            self.database.commit()
+        self.database.reConnect()
