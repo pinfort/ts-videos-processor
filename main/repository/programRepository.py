@@ -77,6 +77,33 @@ class ProgramRepository:
         self.database.reConnect()
         return dto
 
+    def findByExecutedFileId(self, executedFileId: int) -> Union[ProgramDto, None]:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT
+                    id,
+                    name,
+                    executed_file_id,
+                    status
+                FROM
+                    program
+                WHERE
+                    executed_file_id = %s
+            """, (
+                executedFileId,
+            ))
+            result: pymysql.connections.MySQLResult = cursor.fetchone()
+        if result is None:
+            return None
+        dto = ProgramDto(
+            id=result["id"],
+            name=result["name"],
+            executedFileId=result["executed_file_id"],
+            status=ProgramStatus[result["status"]],
+        )
+        self.database.reConnect()
+        return dto
+
     def find(self, id: int) -> Union[ProgramDto, None]:
         with self.database.connection.cursor() as cursor:
             cursor.execute(f"""

@@ -1,5 +1,6 @@
 from logging import Logger, getLogger
 from pathlib import Path
+from typing import Iterable, Iterator
 from pymysql.connections import Connection
 from smb.SMBConnection import SMBConnection
 from smb.smb_structs import OperationFailure
@@ -78,3 +79,8 @@ class Nas:
             return False
         self.connection.rename(nas.NAS_SERVICE_NAME, str(old), str(new))
         return True
+
+    def filterExistPath(self, pathList: Iterable[Path]) -> Iterator[Path]:
+        for path in pathList:
+            if self.fileOrDirectoryExists(path):
+                yield path

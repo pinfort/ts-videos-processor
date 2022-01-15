@@ -18,6 +18,7 @@ from main.repository.programRepository import ProgramRepository
 from main.repository.splittedFileRepository import SplittedFileRepository
 from main.dto.createdFileDto import CreatedFileDto
 from main.config.nas import NAS_ROOT_DIR
+from main.command.validateCompleted import ValidateCompleted
 
 class ProcessAfterEncode:
     """
@@ -101,6 +102,7 @@ class ProcessAfterEncode:
     splittedFileRepository: SplittedFileRepository
     programRepository: ProgramRepository
     database: Database
+    validateCompleted: ValidateCompleted
 
     def __init__(self) -> None:
         dotenv_path = join(dirname(__file__), '.env')
@@ -116,6 +118,7 @@ class ProcessAfterEncode:
         self.createdFileRepository = CreatedFileRepository(self.database)
         self.splittedFileRepository = SplittedFileRepository(self.database)
         self.programRepository = ProgramRepository(self.database)
+        self.validateCompleted = ValidateCompleted()
 
     def __loadEnvs(self) -> None:
         self.item_id = int(os.getenv("ITEM_ID"))
@@ -187,7 +190,16 @@ class ProcessAfterEncode:
             file.unlink()
 
     def finishProcess(self, executedFileId: int):
-        self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.COMPLETED)
+        program = self.programRepository.findByExecutedFileId(executedFileId)
+        if program is None:
+            self.logger.error(f"program not found. executedFileId:{executedFileId}")
+            return
+        if self.validateCompleted.validate(program.id):
+            self.logger.info(f"program valid. status will be completed. programId:{program.id}")
+            self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.COMPLETED)
+        else:
+            self.logger.error(f"program invalid. programId:{program.id}")
+            self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.ERROR)
 
     def notifyError(self):
         self.logger.error(f"encode failed. amatsukaze_id:{self.item_id}, in_path:{self.in_path}")

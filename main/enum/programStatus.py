@@ -6,3 +6,4 @@ class ProgramStatus(Enum):
     """
     完了
     """
+    ERROR = auto()

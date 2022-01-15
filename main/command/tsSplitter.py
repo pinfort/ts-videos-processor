@@ -31,30 +31,15 @@ class TsSplitter():
         self.logger = getLogger(__name__)
 
     def tsSplitter(self, path: Path) -> SplittedFileDto:
-        # error check
-        if(not path.exists()):
-            raise Exception(f"file not found path:{path}")
+        self.__validate(path)
+
         originalFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
-        existingFiles = self.findFiles(originalFile)
-        if(len(existingFiles) > 0):
-            self.logger.error(f"ERROR: splitted file already exist! original:{originalFile}")
-            for file in existingFiles:
-                self.logger.error(file)
-            raise Exception(f"splitted file already exist! original:{originalFile}")
 
         outputPath = path.parent.joinpath(TsSplitter.WORK_DIRECTORY)
         if(not outputPath.exists()):
             outputPath.mkdir()
 
-        command = TsSplitter.APPLICATION_PATH + " " + TsSplitter.OPTIONS + " -OUT \"" + str(outputPath.absolute()) + "\" -SEP \"" + str(path.absolute()) + "\""
-        self.logger.info(f"tsSpliter starting with command:{command}")
-        try:
-            exitCode: int = executeCommand(command)
-            if(exitCode != 0):
-                self.logger.error("splitting file become error!")
-                raise Exception("splitting file become error!")
-        except:
-            pass
+        self.__executeCommand(path, outputPath)
 
         files = self.findFiles(originalFile)
         if(len(files) == 0):
@@ -85,6 +70,7 @@ class TsSplitter():
         pattern = glob.escape(originalFile.file.stem) + "*.m2ts"
         self.logger.debug(f"search pattern {pattern}")
         for file in directory.glob(pattern):
+            self.logger.debug(f"file found {file}")
             files.append(
                 SplittedFileDtoConverter.convert(
                     filePath=file,
@@ -92,6 +78,31 @@ class TsSplitter():
                 )
             )
         return files
+    
+    def __validate(self, path: Path) -> None:
+        # 対象パスの存在チェック
+        if(not path.exists()):
+            raise Exception(f"file not found path:{path}")
+        
+        # すでに存在しているときは、意図しない上書きを防ぐためエラーにする
+        originalFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
+        existingFiles = self.findFiles(originalFile)
+        if(len(existingFiles) > 0):
+            self.logger.error(f"ERROR: splitted file already exist! original:{originalFile}")
+            for file in existingFiles:
+                self.logger.error(file)
+            raise Exception(f"splitted file already exist! original:{originalFile}")
+    
+    def __executeCommand(self, inputPath: Path, outPutPath: Path) -> None:
+        command = TsSplitter.APPLICATION_PATH + " " + TsSplitter.OPTIONS + " -OUT \"" + str(outPutPath.absolute()) + "\" -SEP \"" + str(inputPath.absolute()) + "\""
+        self.logger.info(f"tsSpliter starting with command:{command}")
+        try:
+            exitCode: int = executeCommand(command)
+            if(exitCode != 0):
+                self.logger.error("splitting file become error!")
+                raise Exception("splitting file become error!")
+        except:
+            pass
 
     def rollback(self, path: Path) -> None:
         originalFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
