@@ -42,7 +42,7 @@ class TsVideosProcessor:
         self.logger.info(path)
         files: Iterable[Path]
 
-        if(not path.exists):
+        if(not path.exists()):
             self.logger.error(f"""path not exist path:{str(path)}""")
             requests.post(SLACK_WEBHOOK_URL, json.dumps({
                     "text" : f"""path not exist path:{str(path)}""",

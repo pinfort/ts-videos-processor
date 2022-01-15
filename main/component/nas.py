@@ -84,3 +84,9 @@ class Nas:
         for path in pathList:
             if self.fileOrDirectoryExists(path):
                 yield path
+
+    def getFile(self, path: Path) -> SharedFile:
+        return self.connection.getAttributes(nas.NAS_SERVICE_NAME, str(path))
+
+    def getList(self, path:Path) -> list[SharedFile]:
+        return self.connection.listPath(nas.NAS_SERVICE_NAME, str(path))

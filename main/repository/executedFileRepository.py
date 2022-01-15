@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from datetime import datetime
 from pathlib import Path
 from typing import Union
 
@@ -128,6 +129,45 @@ class ExecutedFileRepository:
         self.database.reConnect()
         return dto
 
+    def findByTitle(self, title:str) -> Union[ExecutedFileDto, None]:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT
+                    id,
+                    file,
+                    drops,
+                    size,
+                    recorded_at,
+                    channel,
+                    channelName,
+                    duration,
+                    title,
+                    status
+                FROM
+                    executed_file
+                WHERE
+                    title = %s
+            """, (
+                title,
+            ))
+            result: pymysql.connections.MySQLResult = cursor.fetchone()
+        if result is None:
+            return None
+        dto = ExecutedFileDto(
+            id=result["id"],
+            file=Path(result["file"]),
+            drops=result["drops"],
+            size=result["size"],
+            recorded_at=result["recorded_at"],
+            channel=result["channel"],
+            channelName=result["channelName"],
+            duration=result["duration"],
+            title=result["title"],
+            status=ExecutedFileStatus[result["status"]],
+        )
+        self.database.reConnect()
+        return dto
+
     def deleteByFile(self, file:Path) -> None:
         with self.database.connection.cursor() as cursor:
             cursor.execute(f"""
@@ -157,3 +197,48 @@ class ExecutedFileRepository:
             ))
             self.database.commit()
         self.database.reConnect()
+
+    def findByBroadCastInfo(self, recordedAt: datetime, channel: str, channelName: str) -> Union[ExecutedFileDto, None]:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT
+                    id,
+                    file,
+                    drops,
+                    size,
+                    recorded_at,
+                    channel,
+                    channelName,
+                    duration,
+                    title,
+                    status
+                FROM
+                    executed_file
+                WHERE
+                    recorded_at = %s
+                AND
+                    channel = %s
+                AND
+                    channelName = %s
+            """, (
+                recordedAt,
+                channel,
+                channelName
+            ))
+            result: pymysql.connections.MySQLResult = cursor.fetchone()
+        if result is None:
+            return None
+        dto = ExecutedFileDto(
+            id=result["id"],
+            file=Path(result["file"]),
+            drops=result["drops"],
+            size=result["size"],
+            recorded_at=result["recorded_at"],
+            channel=result["channel"],
+            channelName=result["channelName"],
+            duration=result["duration"],
+            title=result["title"],
+            status=ExecutedFileStatus[result["status"]],
+        )
+        self.database.reConnect()
+        return dto
