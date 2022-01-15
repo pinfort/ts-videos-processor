@@ -43,6 +43,7 @@ class DropChk():
         command = DropChk.APPLICATION_PATH + " " + DropChk.OPTIONS + " \"" + str(path) + "\""
         self.logger.info(f"dropchk starting with command:{command} path:{path}")
         drops: int = executeCommand(command)
+        self.logger.info(f"dropchk finished. path:{path}, drops:{drops}")
 
         executedFile: ExecutedFileDto = ExecutedFileDtoConverter.convert(filePath=path, drops=drops)
 

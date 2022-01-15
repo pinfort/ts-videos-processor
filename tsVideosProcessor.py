@@ -61,9 +61,10 @@ class TsVideosProcessor:
             try:
                 self.processFile(file)
             except Exception as e:
-                self.logger.error(f"processing file failed. file:{file} reason:{e} stackTrace:{traceback.format_exc()}")
+                stackTrace: str = traceback.format_exc()
+                self.logger.error(f"processing file failed. file:{file} reason:{e} stackTrace:{stackTrace}")
                 requests.post(SLACK_WEBHOOK_URL, json.dumps({
-                    "text" : f"processing file failed. file:{file} reason:{e}",
+                    "text" : f"processing file failed. file:{file} reason:{e} stackTrace:\n```\n{stackTrace}\n```",
                 }))
         self.logger.info("processing path finished.")
 
