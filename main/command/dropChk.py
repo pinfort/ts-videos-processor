@@ -77,8 +77,11 @@ class DropChk():
         処理を巻き戻す。いまのところはDB登録処理だけ
         """
         self.logger.warn(f"dropChkTask. rollbacking and deleteing DB records. path:{path}")
-        executedFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
-        self.programRepository.deleteByexecutedFileId(executedFile.id)
-        self.executedFileRepository.deleteByFile(path)
+        executedFile: Union[ExecutedFileDto, None] = self.executedFileRepository.findByFile(path)
+        if executedFile is None:
+            self.logger.warn(f"executed file for rollback not found. path:{path}")
+        else:
+            self.programRepository.deleteByexecutedFileId(executedFile.id)
+            self.executedFileRepository.deleteByFile(path)
 
         self.logger.warn(f"dropChk rollback task completed. path:{path}")

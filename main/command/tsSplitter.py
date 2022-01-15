@@ -96,13 +96,14 @@ class TsSplitter():
     def __executeCommand(self, inputPath: Path, outPutPath: Path) -> None:
         command = TsSplitter.APPLICATION_PATH + " " + TsSplitter.OPTIONS + " -OUT \"" + str(outPutPath.absolute()) + "\" -SEP \"" + str(inputPath.absolute()) + "\""
         self.logger.info(f"tsSpliter starting with command:{command}")
+        exitCode: int = 0
         try:
-            exitCode: int = executeCommand(command)
-            if(exitCode != 0):
-                self.logger.error("splitting file become error!")
-                raise Exception("splitting file become error!")
+            exitCode = executeCommand(command)
         except:
             pass
+        if(exitCode != 0):
+            self.logger.error("splitting file become error!")
+            raise Exception("splitting file become error!")
 
     def rollback(self, path: Path) -> None:
         originalFile: ExecutedFileDto = self.executedFileRepository.findByFile(path)
