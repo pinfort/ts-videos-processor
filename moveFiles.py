@@ -90,13 +90,13 @@ def main():
         basePath = originalDirectory.parent.parent
         indexDirectoryPath = basePath.joinpath(targetName[0:1])
         targetDirectory = indexDirectoryPath.joinpath(targetName)
-        if not nas.fileOrDirectoryExists(indexDirectoryPath):
-            nas.createDirectory(indexDirectoryPath)
+        if not nas.fileOrDirectoryExists(targetDirectory):
+            nas.createDirectory(targetDirectory)
         logger.info(f"you are moving original:{originalDirectory} to target:{targetDirectory}")
-        if not nas.rename(originalDirectory, targetDirectory):
-            logger.error("rename failed. target already exist. you must do it on your hand.")
         for file in movieOrOtherFiles:
-            logger.info(f"updating file file:{targetDirectory.joinpath(file.file.name)}")
+            logger.info(f"updating file original:{originalDirectory.joinpath(file.file.name)}, target:{targetDirectory.joinpath(file.file.name)}")
+            if not nas.rename(originalDirectory.joinpath(file.file.name), targetDirectory.joinpath(file.file.name)):
+                logger.error(f"rename failed. target already exist. you must do it on your hand. file:{file.file}")
             createdFileRepository.updateFile(file.id, targetDirectory.joinpath(file.file.name))
     else:
         logger.info("movie files in DB but not in nas.")

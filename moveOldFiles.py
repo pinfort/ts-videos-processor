@@ -107,13 +107,16 @@ class MoveOldFiles():
         DB導入前仕様ファイルが見つかれば、processNotRegisteredFileに流す。
         """
         self.logger.info(f"process file started. file:{file.filename}")
+        if file.filename.endswith(".log"):
+            self.logger.info("it is log. skipping.")
+            return
         executedFile: Union[ExecutedFileDto, None] = self.getExecutedFile(file)
         if executedFile is None:
             """
             DB導入前の旧仕様ファイル。処理を流す。
             """
             self.logger.info(f"executed file not registered. going to V1 function. file:{file.filename}")
-            return self.processNotRegisteredFile(directory, file)
+            return self.processNotRegisteredFile(directory, file, files)
         self.logger.info(f"executed file found. dto:{executedFile}")
         splittedFiles: list[SplittedFileDto] = self.splittedFileRespository.selectByExecutedFileId(executedFile.id)
         if len(splittedFiles) == 0:
@@ -136,13 +139,12 @@ class MoveOldFiles():
             self.splittedFileRespository.updateStatus(splittedFile.id, SplittedFileStatus.COMPRESS_SAVED)
         self.logger.info(f"process file finished. file:{file.filename}")
 
-    def processNotRegisteredFile(self, directory: Path, file: SharedFile) -> None:
+    def processNotRegisteredFile(self, directory: Path, file: SharedFile, files: list[SharedFile]) -> None:
         """
         DB導入前の旧仕様ファイルを処理。
-        DB導入前旧仕様ファイルは、一番組につき一ファイル。
         """
         self.logger.info(f"processing V1 file. file:{file.filename}, directory:{directory}")
-        targetFiles = [file]
+        targetFiles = list(self.selectTargetFileFromFileList(Path(file.filename).stem, files))
         executedFile = self.createExecutedFileRecord(directory, file)
         splittedFile = self.createSplittedFileRecord(executedFile)
         targetDirectory = self.moveFiles(directory, targetFiles)
@@ -201,8 +203,8 @@ class MoveOldFiles():
         for file in files:
             self.logger.info(f"move file! original:{oldDirectory.joinpath(file.filename)}, target:{targetDirectory.joinpath(file.filename)}")
             if not self.nas.rename(oldDirectory.joinpath(file.filename), targetDirectory.joinpath(file.filename)):
-                self.logger.error(f"move file failed. target already exist. file:{file}")
-                raise Exception(f"move file failed. target already exist. file:{file}")
+                self.logger.error(f"move file failed. target already exist. file:{file.filename}")
+                raise Exception(f"move file failed. target already exist. file:{file.filename}")
         return targetDirectory
 
     def createProgramRecord(self, files: Iterable[SharedFile], executedFile: ExecutedFileDto) -> None:
