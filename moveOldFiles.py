@@ -30,6 +30,12 @@ from main.component.fileName import FileName
 from main.config.nas import NAS_ROOT_DIR
 
 class MoveOldFiles():
+    """
+    旧仕様(V1, V2)のファイルを新仕様(V3)に合わせてDB登録、ファイル移動を行います。
+    V1: DB登録なし、ファイルは一番組につき動画ファイルひとつのみ。
+    V2: DB登録あるが、executedfileとsplittedFileのみ。ファイルは動画ファイルのほかログファイルもあり。
+    V3: 新仕様。executedFile, splittedFile, createdFile, program登録あり。ファイルは動画ファイルのほかログファイルもあり。
+    """
     logger: Logger
     database: Database
     createdFileRepository: CreatedFileRepository
@@ -96,15 +102,23 @@ class MoveOldFiles():
                 yield file
 
     def processFile(self, directory: Path, file: SharedFile, files: list[SharedFile]) -> None:
+        """
+        DB導入後、executedFileとsplittedFileのみ存在する旧仕様ファイルを処理。
+        DB導入前仕様ファイルが見つかれば、processNotRegisteredFileに流す。
+        """
         self.logger.info(f"process file started. file:{file.filename}")
         executedFile: Union[ExecutedFileDto, None] = self.getExecutedFile(file)
         if executedFile is None:
-            self.logger.info(f"executed file not registered. skipping. file:{file.filename}")
-            return
+            """
+            DB導入前の旧仕様ファイル。処理を流す。
+            """
+            self.logger.info(f"executed file not registered. going to V1 function. file:{file.filename}")
+            return self.processNotRegisteredFile(directory, file)
         self.logger.info(f"executed file found. dto:{executedFile}")
         splittedFiles: list[SplittedFileDto] = self.splittedFileRespository.selectByExecutedFileId(executedFile.id)
         if len(splittedFiles) == 0:
             self.logger.info(f"splitted file not found. skipping. file:{file.filename}")
+            return
 
         # 最も大きいファイルをメインとする
         mainSplittedFile: Union[SplittedFileDto, None] = None
@@ -121,6 +135,51 @@ class MoveOldFiles():
         for splittedFile in splittedFiles:
             self.splittedFileRespository.updateStatus(splittedFile.id, SplittedFileStatus.COMPRESS_SAVED)
         self.logger.info(f"process file finished. file:{file.filename}")
+
+    def processNotRegisteredFile(self, directory: Path, file: SharedFile) -> None:
+        """
+        DB導入前の旧仕様ファイルを処理。
+        DB導入前旧仕様ファイルは、一番組につき一ファイル。
+        """
+        self.logger.info(f"processing V1 file. file:{file.filename}, directory:{directory}")
+        targetFiles = [file]
+        executedFile = self.createExecutedFileRecord(directory, file)
+        splittedFile = self.createSplittedFileRecord(executedFile)
+        targetDirectory = self.moveFiles(directory, targetFiles)
+        self.createCreatedFileRecords(targetDirectory, targetFiles, splittedFile)
+        self.createProgramRecord(targetFiles, executedFile)
+        self.logger.info(f"process file finished. file:{file.filename}")
+
+    def createExecutedFileRecord(self, directory: Path, file: SharedFile) -> ExecutedFileDto:
+        filename = FileName(file.filename)
+        executedFile = ExecutedFileDto(
+            id=0,
+            file=directory.joinpath(file.filename),
+            drops=0,
+            size=file.file_size,
+            recorded_at=filename.recorded_at,
+            channel=filename.channel,
+            channelName=filename.channelName,
+            title=filename.title,
+            duration=0,
+            status=ExecutedFileStatus.SPLITTED,
+        )
+        self.logger.info(f"creating executedFile. dto:{executedFile}")
+        self.executedFileRepository.insert(executedFile)
+        return self.executedFileRepository.findByBroadCastInfo(filename.recorded_at, filename.channel, filename.channelName)
+
+    def createSplittedFileRecord(self, executedFile: ExecutedFileDto) -> SplittedFileDto:
+        splittedFile = SplittedFileDto(
+            id=0,
+            executedFileId=executedFile.id,
+            file=executedFile.file,
+            size=executedFile.size,
+            duration=executedFile.duration,
+            status=SplittedFileStatus.COMPRESS_SAVED,
+        )
+        self.logger.info(f"creating splittedFile. dto:{splittedFile}")
+        self.splittedFileRespository.insert(splittedFile)
+        return self.splittedFileRespository.selectByExecutedFileId(executedFile.id)[0]
 
     def getExecutedFile(self, file: SharedFile) -> Union[ExecutedFileDto, None]:
         """
@@ -178,9 +237,24 @@ class MoveOldFiles():
             self.createdFileRepository.insert(dto)
 
 def main():
+    """
+    対象動画ファイルの入っているディレクトリを引数へ与えて起動する場合。
+    """
     moveOldFiles = MoveOldFiles()
     for input in sys.argv[1:]:
         moveOldFiles.processPath(Path(input))
 
+def mainWithDirectory():
+    """
+    対象動画ファイルの入っているディレクトリの親ディレクトリを引数に与えて起動する場合。
+    """
+    moveOldFiles = MoveOldFiles()
+    dir = sys.argv[1]
+    files = moveOldFiles.nas.getList(dir)
+    for file in files:
+        if file.isDirectory and file.filename not in [".", ".."]:
+            # print(Path(dir).joinpath(file.filename))
+            moveOldFiles.processPath(Path(dir).joinpath(file.filename))
+
 if __name__ == "__main__":
-    main()
+    mainWithDirectory()
