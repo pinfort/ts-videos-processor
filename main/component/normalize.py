@@ -11,6 +11,7 @@ class Normalize():
         "<": "＜",
         ">": "＞",
         "|": "｜",
+        "~": "～",
     })
 
     def normalize(self, name: str) -> str:
