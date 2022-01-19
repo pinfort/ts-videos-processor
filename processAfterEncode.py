@@ -168,7 +168,7 @@ class ProcessAfterEncode:
 
         for file in self.files:
             mime: tuple[Union[str, None] , Union[str, None]] = mimetypes.guess_type(file)
-            targetDirectoryName = file.parent.parent.parent.name
+            targetDirectoryName = self.normalize.normalize(file.parent.parent.parent.name)
             target_directory: Path = NAS_ROOT_DIR.joinpath(targetDirectoryName[0:1]).joinpath(targetDirectoryName)
             self.createdFileRepository.insert(
                 CreatedFileDto(
@@ -186,7 +186,8 @@ class ProcessAfterEncode:
 
     def moveFiles(self):
         for file in self.files:
-            target_directory: Path = NAS_ROOT_DIR.joinpath(file.parent.parent.parent.name[0:1]).joinpath(file.parent.parent.parent.name)
+            directoryName: str = self.normalize.normalize(file.parent.parent.parent.name)
+            target_directory: Path = NAS_ROOT_DIR.joinpath(directoryName[0:1]).joinpath(directoryName)
             createdFile: CreatedFileDto = self.createdFileRepository.findByFile(target_directory.joinpath(file.name))
             self.nas.save(file, target_directory)
             self.createdFileRepository.updateStatus(createdFile.id, CreatedFileStatus.FILE_MOVED)
