@@ -70,9 +70,10 @@ def main():
         if not nas.fileOrDirectoryExists(indexDirectory):
             nas.createDirectory(indexDirectory)
         logger.info(f"you are moving original:{originalDirectory} to target:{targetDirectory}")
-        if not nas.rename(originalDirectory, targetDirectory):
-            logger.error("rename failed. target already exist. you must do it on your hand.")
         for file in zippedFiles:
+            logger.info(f"updating file original:{originalDirectory.joinpath(file.file.name)}, target:{targetDirectory.joinpath(file.file.name)}")
+            if not nas.rename(originalDirectory.joinpath(file.file.name), targetDirectory.joinpath(file.file.name)):
+                logger.error(f"rename failed. target already exist. you must do it on your hand. file:{file.file}")
             logger.info(f"updating file file:{targetDirectory.joinpath(file.file.name)}")
             createdFileRepository.updateFile(file.id, targetDirectory.joinpath(file.file.name))
     else:

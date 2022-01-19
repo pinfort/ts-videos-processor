@@ -13,6 +13,7 @@ from main.enum.createdFileStatus import CreatedFileStatus
 from main.enum.splittedFileStatus import SplittedFileStatus
 from main.repository.createdFileRepository import CreatedFileRepository
 from main.repository.splittedFileRepository import SplittedFileRepository
+from main.component.normalize import Normalize
 
 class CompressAndSave:
     logger: Logger
@@ -21,6 +22,7 @@ class CompressAndSave:
     database: Database
     createdFileRepository: CreatedFileRepository
     splittedFileRespository: SplittedFileRepository
+    normalize: Normalize
 
     def __init__(self) -> None:
         self.compress = Compress()
@@ -29,12 +31,14 @@ class CompressAndSave:
         self.createdFileRepository = CreatedFileRepository(self.database)
         self.splittedFileRespository = SplittedFileRepository(self.database)
         self.logger = getLogger(__name__)
-    
+        self.normalize = Normalize()
+
     def execute(self, splittedFile: SplittedFileDto) -> None:
         self.logger.info(f"compressing file started. target:{splittedFile.file}")
         # そのファイルのディレクトリ名を引き継ぐ
         # parentが一つだとtssplitterディレクトリになる
-        target_directory: Path = NAS_ROOT_DIR_ZIPED.joinpath(splittedFile.file.parent.parent.name[0:1]).joinpath(splittedFile.file.parent.parent.name)
+        targetDirectoryName = self.normalize.normalize(splittedFile.file.parent.parent.name)
+        target_directory: Path = NAS_ROOT_DIR_ZIPED.joinpath(targetDirectoryName[0:1]).joinpath(targetDirectoryName)
         self.logger.info(f"target path caliculated. path:{target_directory}")
         compressed_file_name: str = splittedFile.file.name + ".gz"
         compressed_path: Path = splittedFile.file.parent.joinpath(Path(compressed_file_name))

@@ -25,7 +25,8 @@ class ValidateCompleted():
         self.splittedFileRepository = SplittedFileRepository(self.database)
         self.programRepository = ProgramRepository(self.database)
         self.logger = getLogger(__name__)
-    
+        self.nas = Nas()
+
     def validate(self, programId: int) -> bool:
         self.logger.info(f"validating program id:{programId}")
         program = self.programRepository.find(programId)
@@ -38,11 +39,10 @@ class ValidateCompleted():
             self.logger.info(f"splittedFile is not found executedFileId:{program.executedFileId}, programId:{program.id}")
             return False
 
-        createdFiles: Iterator[CreatedFileDto] = itertools.chain.from_iterable([self.createdFileRepository.selectBySplittedFileId(splittedFile.id) for splittedFile in splittedFiles])
-
-        existPathList: list[Path] = list(self.nas.filterExistPath([file.file for file in createdFiles]))
-        self.logger.info(f"exist path list:{existPathList}")
-        existCreatedFiles: list[CreatedFileDto] = [createdFile for createdFile in createdFiles if createdFile.file in existPathList]
+        createdFiles: list[CreatedFileDto] = list(itertools.chain.from_iterable([self.createdFileRepository.selectBySplittedFileId(splittedFile.id) for splittedFile in splittedFiles]))
+        self.logger.info(f"found created files:{createdFiles}")
+        existCreatedFiles: list[CreatedFileDto] = [createdFile for createdFile in createdFiles if self.nas.fileOrDirectoryExists(createdFile.file)]
+        self.logger.info(f"exist createdFiles:{existCreatedFiles}")
 
         gzipFileExist: bool = False
         movieFileExist: bool = False

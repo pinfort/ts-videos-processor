@@ -144,3 +144,35 @@ class ProgramRepository:
             ))
             self.database.commit()
         self.database.reConnect()
+
+    def selectByStatus(self, status: ProgramStatus, offset:int, limit: int) -> list[ProgramDto]:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                SELECT
+                    id,
+                    name,
+                    executed_file_id,
+                    status
+                FROM
+                    program
+                WHERE
+                    status = %s
+                LIMIT
+                    %s, %s
+            """, (
+                status.name,
+                offset,
+                limit,
+            ))
+            results: list[pymysql.connections.MySQLResult] = cursor.fetchall()
+        dtoList = [
+            ProgramDto(
+                id=result["id"],
+                name=result["name"],
+                executedFileId=result["executed_file_id"],
+                status=ProgramStatus[result["status"]],
+            )
+            for result in results
+        ]
+        self.database.reConnect()
+        return dtoList

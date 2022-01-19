@@ -90,9 +90,10 @@ class MainSplittedFileFinder:
             self.logger.warn(f"too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}")
             raise Exception(f"main file not found. too many drops in executedFile. id:{executedFile.id} drops:{executedFile.drops}, executedFile:{executedFile.file}")
 
-        # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は20秒以下0秒以上。
+        # 分割されたファイルの再生時間とオリジナルファイルの再生時間の差は20秒以下-5秒以上。
+        # 分割ファイルの時間が元ファイルより伸びる事象があったため、5秒まで分割ファイルのほうが長いことを許可
         durationDifference: int = int(executedFile.duration) - int(splittedFile.duration)
-        if durationDifference < 0 or durationDifference > 20:
+        if durationDifference < -5 or durationDifference > 20:
             self.logger.warn(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}")
             raise Exception(f"main file not found. duration between original and splitted is too different! executed_file_id:{executedFile.id}, executedFile:{executedFile.file}")
         return True

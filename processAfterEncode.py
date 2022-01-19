@@ -19,6 +19,7 @@ from main.repository.splittedFileRepository import SplittedFileRepository
 from main.dto.createdFileDto import CreatedFileDto
 from main.config.nas import NAS_ROOT_DIR
 from main.command.validateCompleted import ValidateCompleted
+from main.component.normalize import Normalize
 
 class ProcessAfterEncode:
     """
@@ -103,6 +104,7 @@ class ProcessAfterEncode:
     programRepository: ProgramRepository
     database: Database
     validateCompleted: ValidateCompleted
+    normalize: Normalize
 
     def __init__(self) -> None:
         dotenv_path = join(dirname(__file__), '.env')
@@ -119,6 +121,7 @@ class ProcessAfterEncode:
         self.splittedFileRepository = SplittedFileRepository(self.database)
         self.programRepository = ProgramRepository(self.database)
         self.validateCompleted = ValidateCompleted()
+        self.normalize = Normalize()
 
     def __loadEnvs(self) -> None:
         self.item_id = int(os.getenv("ITEM_ID"))
@@ -165,7 +168,8 @@ class ProcessAfterEncode:
 
         for file in self.files:
             mime: tuple[Union[str, None] , Union[str, None]] = mimetypes.guess_type(file)
-            target_directory: Path = NAS_ROOT_DIR.joinpath(file.parent.parent.parent.name[0:1]).joinpath(file.parent.parent.parent.name)
+            targetDirectoryName = file.parent.parent.parent.name
+            target_directory: Path = NAS_ROOT_DIR.joinpath(targetDirectoryName[0:1]).joinpath(targetDirectoryName)
             self.createdFileRepository.insert(
                 CreatedFileDto(
                     id=0,
@@ -190,15 +194,19 @@ class ProcessAfterEncode:
             file.unlink()
 
     def finishProcess(self, executedFileId: int):
-        program = self.programRepository.findByExecutedFileId(executedFileId)
-        if program is None:
-            self.logger.error(f"program not found. executedFileId:{executedFileId}")
-            return
-        if self.validateCompleted.validate(program.id):
-            self.logger.info(f"program valid. status will be completed. programId:{program.id}")
-            self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.COMPLETED)
-        else:
-            self.logger.error(f"program invalid. programId:{program.id}")
+        try:
+            program = self.programRepository.findByExecutedFileId(executedFileId)
+            if program is None:
+                self.logger.error(f"program not found. executedFileId:{executedFileId}")
+                return
+            if self.validateCompleted.validate(program.id):
+                self.logger.info(f"program valid. status will be completed. programId:{program.id}")
+                self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.COMPLETED)
+            else:
+                self.logger.error(f"program invalid. programId:{program.id}")
+                self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.ERROR)
+        except Exception as e:
+            self.logger.error(f"program invalid. programId:{program.id}, e:{e}")
             self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.ERROR)
 
     def notifyError(self):
