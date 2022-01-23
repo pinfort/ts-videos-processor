@@ -90,3 +90,6 @@ class Nas:
 
     def getList(self, path:Path) -> list[SharedFile]:
         return self.connection.listPath(nas.NAS_SERVICE_NAME, str(path))
+
+    def removeFile(self, file: Path) -> None:
+        self.connection.deleteFiles(nas.NAS_SERVICE_NAME, str(file))

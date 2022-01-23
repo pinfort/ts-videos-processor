@@ -48,7 +48,9 @@ class Reset:
             createdFiles: list[CreatedFileDto] = self.createdFileRepository.selectBySplittedFileId(f.id)
             for c in createdFiles:
                 self.logger.info(f"created file found. path:{c.file}")
-                # TODO delete NAS files
+                if self.nas.fileOrDirectoryExists(c.file):
+                    self.logger.info(f"file deleted. file:{c.file}")
+                    self.nas.removeFile(c.file)
             self.createdFileRepository.deleteBySplittedFileId(f.id)
 
             self.logger.info(f"splitted file found. path:{f.file}")
