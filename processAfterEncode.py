@@ -1,6 +1,7 @@
 import os
 import json
 import mimetypes
+import traceback
 
 from pathlib import Path
 from datetime import datetime
@@ -246,8 +247,8 @@ class ProcessAfterEncode:
                 Slack.notify(f"program invalid. programId:{program.id}")
                 self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.ERROR)
         except Exception as e:
-            self.logger.error(f"program invalid. programId:{program.id}, e:{e}")
-            Slack.notify(f"program invalid. programId:{program.id}, e:{e}")
+            self.logger.error(f"program invalid. programId:{program.id}, e:{e}, stacktrace:{traceback.format_exc()}")
+            Slack.notify(f"program invalid. programId:{program.id}, e:{e}, \nstacktrace:```{traceback.format_exc()}```")
             self.programRepository.updateStatusByexecutedFileId(executedFileId, ProgramStatus.ERROR)
 
     def notifyError(self):
@@ -292,6 +293,11 @@ class ProcessAfterEncode:
         if executedFile.file.exists():
             self.logger.info(f"removing executed file:{executedFile.file}, id:{executedFile.id}")
             executedFile.file.unlink()
+        splittedFiles: list[SplittedFileDto] = self.splittedFileRepository.selectByExecutedFileId(executedFileId)
+        for splittedFile in splittedFiles:
+            if splittedFile.file.exists():
+                self.logger.info(f"removing splitted file:{splittedFile.file}, id:{splittedFile.id}")
+                splittedFile.file.unlink()
 
 def main():
     task = ProcessAfterEncode()
