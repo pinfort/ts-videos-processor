@@ -1,6 +1,6 @@
 # TS Videos processor
 
-自分用に作った、m2ts形式録画ファイルをエンコードできる状態にするための前処理を行うソフトウェア
+自分用に作った、m2ts形式録画ファイルのエンコード処理を行うソフトウェア
 
 以下のことを行う
 
@@ -9,6 +9,10 @@
 - tssplitterによって分割されたtsファイルをAmatsukazeのキューに追加
 - 分割されたtsファイルの内メインファイルを圧縮してNASに移動
 - Amatsukazeでのエンコード後にエンコードで生成されたファイル群をNASに移動するためのバッチファイルとスクリプト
+- エンコード後のスクリプトによる各種処理
+  - エンコードで生成されたファイルのNASへの移動
+  - このアプリケーションでの処理過程で生成されたファイルの削除
+  - 処理元の録画ファイルの削除
 
 Amatsukazeに登録するtsファイルはmainSplittedFileFinderで選択抽出している。環境によってこれを変更する必要があると思われる。
 
@@ -27,8 +31,34 @@ pipenv shell
 [pipenv shell]> python main.py "/path/to/video files directory/ OR /path/to/file"
 ```
 
+## 付属するスクリプトリスト
+
+- main.py
+  - コマンドラインから処理を行わせるときに使うスクリプト。
+- worker.py
+  - Redisをsubscribeして、メッセージが来ればTsVideosProcessorクラスを呼び出すスクリプト。
+- addQueue.py
+  - worker.pyが起動していることを前提に、Redis経由でキューを積むスクリプト。
+- addQueueByParentDirectory.py
+  - worker.pyが起動していることを前提に、Redis経由でキューを積むスクリプト。
+  - 送信するパスは、与えられたパスそのものではなく、与えられたパスの子ディレクトリすべて。孫以下は含まれない。
+- processAfterEncode.py
+  - Amatsukazeの実行後バッチで呼び出すスクリプト
+  - bat/実行後_NAS移動.batで呼び出される
+- fixStatus.py
+  - programテーブルのstatusを修正する。
+- moveFiles.py
+  - 処理済みの番組のディレクトリ名を変更する。NAS内で移動する。
+- moveOldFiles.py
+  - 旧仕様(V1, V2)のファイルを新仕様(V3)に合わせてDB登録、ファイル移動を行います。
+- reset.py
+  - 処理をリセットする。このアプリケーションで生成されたファイルは軒並み削除される。一部削除されないことがある。
+- search.py
+  - 録画済み番組検索スクリプト
+
 ## 注意事項
 
+- このアプリケーションは自分用である為、予告なく互換性のない変更を行う。
 - 対象ファイルの拡張子は.m2tsである必要がある。
 - 使用を始める前に、DDLをつかって適切にDBを用意する必要がある。mysqlに対応している。
 - 使用を始める前に、tsDropChkとtsSplitter, AmatsukazeをPROJECT_ROOT/libraries/に配置する必要がある。配置すべきパスは、main/command/dropChk.pyとmain/command/tsSplitter.py, main/command/amatsukazeAddTask.pyのAPPLICATION_PATHを参照。

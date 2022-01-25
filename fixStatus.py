@@ -80,6 +80,8 @@ class FixStatus:
 def main():
     """
     programテーブルのstatusを修正する。
+    programのstatusがERRORとなっている行に対して、createdFileのファイルが実際にあるか確認し、
+    m2ts.gzとmp4のファイルが最低１ファイルずつ実際に存在すれば、COMPLETEDにstatusを更新する。
     """
     fixStatus = FixStatus()
     fixStatus.fix()
