@@ -19,6 +19,7 @@ def main():
     COLOR = {
         "HEADER": "\033[95m",
         "RED": "\033[41m",
+        "GREEN": "\033[42m",
         "ENDC": "\033[0m",
     }
     dotenv_path = join(dirname(__file__), '.env')
@@ -32,7 +33,12 @@ def main():
     programs: list[ProgramWithExecuted] = programWithExecutedRepository.selectByNameAndStatus(keyword, ProgramStatus.COMPLETED)
     print("id\trecorded_at\tchannelName\tdrops\tname")
     for program in programs:
-        lineColor = "RED" if program.drops > 0 else "ENDC"
+        if program.drops == 0:
+            lineColor = "ENDC"
+        elif program.drops > 0:
+            lineColor = "RED"
+        else:
+            lineColor = "GREEN"
         print(COLOR[lineColor], f"{program.id}\t{program.recorded_at}\t{program.channelName}\t{program.drops}\t{program.name}", COLOR["ENDC"])
 
 
