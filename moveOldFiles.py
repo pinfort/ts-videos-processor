@@ -123,12 +123,7 @@ class MoveOldFiles():
             self.logger.info(f"splitted file not found. skipping. file:{file.filename}")
             return
 
-        # 最も大きいファイルをメインとする
-        mainSplittedFile: Union[SplittedFileDto, None] = None
-        for splittedFile in splittedFiles:
-            if mainSplittedFile is None or mainSplittedFile.size < splittedFile.size:
-                mainSplittedFile = splittedFile
-        self.logger.info(f"splitted file found. dto:{mainSplittedFile}")
+        mainSplittedFile: Union[SplittedFileDto, None] = self.getMailSplittedFile(splittedFiles)
 
         targetFiles: list[SharedFile] = list(self.selectTargetFileFromFileList(executedFile.file.stem, files))
         targetDirectory = self.moveFiles(directory, targetFiles)
@@ -138,6 +133,15 @@ class MoveOldFiles():
         for splittedFile in splittedFiles:
             self.splittedFileRespository.updateStatus(splittedFile.id, SplittedFileStatus.COMPRESS_SAVED)
         self.logger.info(f"process file finished. file:{file.filename}")
+
+    def getMailSplittedFile(self, splittedFiles: list[SplittedFileDto]) -> Union[SplittedFileDto, None]:
+        # 最も大きいファイルをメインとする
+        mainSplittedFile: Union[SplittedFileDto, None] = None
+        for splittedFile in splittedFiles:
+            if mainSplittedFile is None or mainSplittedFile.size < splittedFile.size:
+                mainSplittedFile = splittedFile
+        self.logger.info(f"splitted file found. dto:{mainSplittedFile}")
+        return mainSplittedFile
 
     def processNotRegisteredFile(self, directory: Path, file: SharedFile, files: list[SharedFile]) -> None:
         """
