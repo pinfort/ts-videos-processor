@@ -9,7 +9,7 @@ from os.path import join, dirname
 from typing import Union
 from dotenv import load_dotenv
 from logging import Logger, config, getLogger
-from main.component.database import Database
+from main.component.dependencyInjector import getInstance
 
 from main.component.nas import Nas
 from main.dto.splittedFileDto import SplittedFileDto
@@ -135,14 +135,13 @@ class ProcessAfterEncode:
 
     files: list[Path]
 
-    nas: Nas
-    createdFileRepository: CreatedFileRepository
-    splittedFileRepository: SplittedFileRepository
-    executedFileRepository: ExecutedFileRepository
-    programRepository: ProgramRepository
-    database: Database
-    validateCompleted: ValidateCompleted
-    normalize: Normalize
+    nas: Nas = getInstance(Nas)
+    createdFileRepository: CreatedFileRepository = CreatedFileRepository()
+    splittedFileRepository: SplittedFileRepository = SplittedFileRepository()
+    executedFileRepository: ExecutedFileRepository = ExecutedFileRepository()
+    programRepository: ProgramRepository = ProgramRepository()
+    validateCompleted: ValidateCompleted = ValidateCompleted()
+    normalize: Normalize = Normalize()
 
     def __init__(self) -> None:
         dotenv_path = join(dirname(__file__), '.env')
@@ -153,14 +152,6 @@ class ProcessAfterEncode:
         self.logger = getLogger(__name__)
         self.__loadEnvs()
         self.logger.info(self.files)
-        self.database = Database()
-        self.nas = Nas()
-        self.createdFileRepository = CreatedFileRepository(self.database)
-        self.splittedFileRepository = SplittedFileRepository(self.database)
-        self.programRepository = ProgramRepository(self.database)
-        self.executedFileRepository = ExecutedFileRepository(self.database)
-        self.validateCompleted = ValidateCompleted()
-        self.normalize = Normalize()
 
     def __loadEnvs(self) -> None:
         self.item_id = int(os.getenv("ITEM_ID"))
@@ -175,7 +166,7 @@ class ProcessAfterEncode:
         self.image_width = int(os.getenv("IMAGE_WIDTH"))
         self.image_height = int(os.getenv("IMAGE_HEIGHT"))
         self.event_name = os.getenv("EVENT_NAME")
-        self.tag = os.getenv("TAG").split(";")
+        self.tag = os.getenv("TAG", "").split(";")
 
         self.profile_name = os.getenv("PROFILE_NAME")
 

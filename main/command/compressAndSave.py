@@ -2,6 +2,7 @@ from logging import Logger, getLogger
 from pathlib import Path
 import mimetypes
 from typing import Union
+from main.component.dependencyInjector import getInstance
 
 from main.component.nas import Nas
 from main.component.compress import Compress
@@ -16,22 +17,12 @@ from main.repository.splittedFileRepository import SplittedFileRepository
 from main.component.normalize import Normalize
 
 class CompressAndSave:
-    logger: Logger
-    nas: Nas
-    compress: Compress
-    database: Database
-    createdFileRepository: CreatedFileRepository
-    splittedFileRespository: SplittedFileRepository
-    normalize: Normalize
-
-    def __init__(self) -> None:
-        self.compress = Compress()
-        self.nas = Nas()
-        self.database = Database()
-        self.createdFileRepository = CreatedFileRepository(self.database)
-        self.splittedFileRespository = SplittedFileRepository(self.database)
-        self.logger = getLogger(__name__)
-        self.normalize = Normalize()
+    logger: Logger = getLogger(__name__)
+    nas: Nas = getInstance(Nas)
+    compress: Compress = Compress()
+    createdFileRepository: CreatedFileRepository = CreatedFileRepository()
+    splittedFileRespository: SplittedFileRepository = SplittedFileRepository()
+    normalize: Normalize = Normalize()
 
     def execute(self, splittedFile: SplittedFileDto) -> None:
         self.logger.info(f"compressing file started. target:{splittedFile.file}")

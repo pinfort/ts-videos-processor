@@ -7,6 +7,7 @@ from logging import Logger, config, getLogger
 from pathlib import Path
 
 from main.component.database import Database
+from main.component.dependencyInjector import getInstance
 from main.dto.createdFileDto import CreatedFileDto
 from main.dto.executedFileDto import ExecutedFileDto
 from main.dto.programDto import ProgramDto
@@ -20,13 +21,12 @@ from main.component.nas import Nas
 
 
 class FixStatus:
-    database: Database
-    executedFileRepository: ExecutedFileRepository
-    splittedFileRepository: SplittedFileRepository
-    createdFileRepository: CreatedFileRepository
-    programRepository: ProgramRepository
+    executedFileRepository: ExecutedFileRepository = ExecutedFileRepository()
+    splittedFileRepository: SplittedFileRepository = SplittedFileRepository()
+    createdFileRepository: CreatedFileRepository = CreatedFileRepository()
+    programRepository: ProgramRepository = ProgramRepository()
     logger: Logger
-    nas: Nas
+    nas: Nas = getInstance(Nas)
 
     def __init__(self) -> None:
         dotenv_path = join(dirname(__file__), '.env')
@@ -35,12 +35,6 @@ class FixStatus:
         with open("log_config.json", 'r') as f:
             config.dictConfig(json.load(f))
         self.logger = getLogger(__name__)
-        self.database = Database()
-        self.executedFileRepository = ExecutedFileRepository(self.database)
-        self.createdFileRepository = CreatedFileRepository(self.database)
-        self.splittedFileRepository = SplittedFileRepository(self.database)
-        self.programRepository = ProgramRepository(self.database)
-        self.nas = Nas()
 
     def fix(self) -> None:
         self.logger.info(f"fixStatus processing.")

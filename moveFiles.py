@@ -3,6 +3,7 @@ from operator import index
 import sys
 import json
 from pathlib import Path
+from main.component.dependencyInjector import getInstance
 from main.component.nas import Nas
 from main.dto.createdFileDto import CreatedFileDto
 from main.dto.programDto import ProgramDto
@@ -26,11 +27,10 @@ def main():
         config.dictConfig(json.load(f))
     logger: Logger = getLogger(__name__)
 
-    database = Database()
-    programRepository = ProgramRepository(database)
-    createdFileRepository = CreatedFileRepository(database)
-    splittedFileRepository = SplittedFileRepository(database)
-    nas = Nas()
+    programRepository = ProgramRepository()
+    createdFileRepository = CreatedFileRepository()
+    splittedFileRepository = SplittedFileRepository()
+    nas: Nas = getInstance(Nas)
 
     programId = int(sys.argv[1])
     targetName = sys.argv[2]

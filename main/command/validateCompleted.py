@@ -1,10 +1,9 @@
 from cmath import inf
 import itertools
 from logging import Logger, getLogger
-from typing import Iterator
-from pathlib import Path
 
 from main.component.database import Database
+from main.component.dependencyInjector import getInstance
 from main.dto.createdFileDto import CreatedFileDto
 from main.repository.createdFileRepository import CreatedFileRepository
 from main.repository.splittedFileRepository import SplittedFileRepository
@@ -13,19 +12,11 @@ from main.component.nas import Nas
 
 class ValidateCompleted():
     database: Database
-    createdFileRepository: CreatedFileRepository
-    splittedFileRepository: SplittedFileRepository
-    programRepository: ProgramRepository
-    logger: Logger
-    nas: Nas
-
-    def __init__(self) -> None:
-        self.database = Database()
-        self.createdFileRepository = CreatedFileRepository(self.database)
-        self.splittedFileRepository = SplittedFileRepository(self.database)
-        self.programRepository = ProgramRepository(self.database)
-        self.logger = getLogger(__name__)
-        self.nas = Nas()
+    createdFileRepository: CreatedFileRepository = CreatedFileRepository()
+    splittedFileRepository: SplittedFileRepository = SplittedFileRepository()
+    programRepository: ProgramRepository = ProgramRepository()
+    logger: Logger = getLogger(__name__)
+    nas: Nas = getInstance(Nas)
 
     def validate(self, programId: int) -> bool:
         self.logger.info(f"validating program id:{programId}")

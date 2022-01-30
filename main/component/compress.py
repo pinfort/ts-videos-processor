@@ -4,10 +4,7 @@ from pathlib import Path
 import shutil
 
 class Compress:
-    logger: Logger
-
-    def __init__(self) -> None:
-        self.logger = getLogger(__name__)
+    logger: Logger = getLogger(__name__)
 
     def compress(self, original_path: Path, compressed_path: Path, force: bool = False) -> bool:
         if compressed_path.exists() and not force:

@@ -4,14 +4,12 @@ from typing import Union
 import pymysql
 
 from main.component.database import Database
+from main.component.dependencyInjector import getInstance
 from main.dto.createdFileDto import CreatedFileDto
 from main.enum.createdFileStatus import CreatedFileStatus
 
 class CreatedFileRepository:
-    database: Database
-
-    def __init__(self, database: Database):
-        self.database = database
+    database: Database = getInstance(Database)
 
     def insert(self, createdFile: CreatedFileDto):
         with self.database.connection.cursor() as cursor:

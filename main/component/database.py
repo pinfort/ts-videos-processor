@@ -1,6 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 import pymysql
+from main.component.dependencyInjector import register
 
 from main.config import database
 
@@ -38,3 +39,9 @@ class Database:
 
     def __del__(self):
         self.disConnect()
+
+@register
+def registerDatabase() -> Database:
+    return Database()
+
+registerDatabase()

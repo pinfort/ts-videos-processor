@@ -7,6 +7,7 @@ from smb.smb_structs import OperationFailure
 import platform
 
 from smb.base import SharedFile
+from main.component.dependencyInjector import register
 
 from main.config import nas
 
@@ -93,3 +94,9 @@ class Nas:
 
     def removeFile(self, file: Path) -> None:
         self.connection.deleteFiles(nas.NAS_SERVICE_NAME, str(file))
+
+@register
+def registerNas() -> Nas:
+    return Nas()
+
+registerNas()

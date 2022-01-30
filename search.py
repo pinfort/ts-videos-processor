@@ -3,11 +3,12 @@ from logging import getLogger, Logger, config
 import json
 from os.path import join, dirname
 from dotenv import load_dotenv
-from main.component.database import Database
 from main.dto.programWithExecuted import ProgramWithExecuted
 from main.enum.programStatus import ProgramStatus
 
 from main.repository.programWithExecutedRepository import ProgramWithExecutedRepository
+from main.repository.createdFileRepository import CreatedFileRepository
+from main.repository.splittedFileRepository import SplittedFileRepository
 
 import os
 
@@ -25,22 +26,27 @@ def main():
     dotenv_path = join(dirname(__file__), '.env')
     load_dotenv(dotenv_path)
 
-    database = Database()
-    programWithExecutedRepository = ProgramWithExecutedRepository(database)
+    programWithExecutedRepository = ProgramWithExecutedRepository()
+    splittedFileRepository = SplittedFileRepository()
+    createdFileRepository = CreatedFileRepository()
 
     keyword = sys.argv[1]
 
     programs: list[ProgramWithExecuted] = programWithExecutedRepository.selectByNameAndStatus(keyword, ProgramStatus.COMPLETED)
-    print("id\trecorded_at\tchannelName\tdrops\tname")
+    print("id\trecorded_at\t\tchannelName\t\tdrops\ttsExists\ttitle")
     for program in programs:
+        splittedFiles = splittedFileRepository.selectByExecutedFileId(program.executedFileId)
+        createdFiles = sum([createdFileRepository.selectBySplittedFileId(splittedFile.id) for splittedFile in splittedFiles], [])
+        createdFileMimes = [createdFile.mime for createdFile in createdFiles]
+        tsExists: bool = "video/vnd.dlna.mpeg-tts" in createdFileMimes
         if program.drops == 0:
             lineColor = "ENDC"
         elif program.drops > 0:
             lineColor = "RED"
         else:
             lineColor = "GREEN"
-        print(COLOR[lineColor], f"{program.id}\t{program.recorded_at}\t{program.channelName}\t{program.drops}\t{program.name}", COLOR["ENDC"])
-
+        print(COLOR[lineColor], f"{program.id}\t{program.recorded_at}\t{program.channelName}\t{program.drops}\t{tsExists}\t{program.title}", COLOR["ENDC"])
+    print(f"{len(programs)} programs found.")
 
 if __name__ == "__main__":
     main()

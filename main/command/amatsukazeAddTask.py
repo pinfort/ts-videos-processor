@@ -8,10 +8,7 @@ class AmatsukazeAddTask():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.parent.joinpath("libraries\\Amatsukaze\\exe_files\\AmatsukazeAddTask.exe").absolute())
     AMATSUKAZE_ROOT: str = str(Path(__file__).parent.parent.parent.joinpath("libraries\\Amatsukaze").absolute())
     OPTIONS: list[str] = ["--priority", "3", "--no-move"]
-    logger: Logger
-
-    def __init__(self) -> None:
-        self.logger = getLogger(__name__)
+    logger: Logger = getLogger(__name__)
 
     def amatsukaze(self, splittedFile: SplittedFileDto):
         outputPath: Path = splittedFile.file.parent.joinpath("encoded") # 入力ファイルのある場所のencodedフォルダに出力する

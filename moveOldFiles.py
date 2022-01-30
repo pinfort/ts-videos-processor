@@ -10,6 +10,7 @@ from os.path import join, dirname
 from typing import Iterable
 from dotenv import load_dotenv
 from smb.base import SharedFile
+from main.component.dependencyInjector import getInstance
 
 from main.component.nas import Nas
 from main.component.database import Database
@@ -37,13 +38,12 @@ class MoveOldFiles():
     V3: 新仕様。executedFile, splittedFile, createdFile, program登録あり。ファイルは動画ファイルのほかログファイルもあり。
     """
     logger: Logger
-    database: Database
-    createdFileRepository: CreatedFileRepository
-    splittedFileRespository: SplittedFileRepository
-    executedFileRepository: ExecutedFileRepository
-    programRepository: ProgramRepository
-    nas: Nas
-    normalize: Normalize
+    createdFileRepository: CreatedFileRepository = CreatedFileRepository()
+    splittedFileRespository: SplittedFileRepository = SplittedFileRepository()
+    executedFileRepository: ExecutedFileRepository = ExecutedFileRepository()
+    programRepository: ProgramRepository = ProgramRepository()
+    nas: Nas = getInstance(Nas)
+    normalize: Normalize = Normalize()
 
     def __init__(self) -> None:
         dotenv_path = join(dirname(__file__), '.env')
@@ -51,15 +51,6 @@ class MoveOldFiles():
 
         with open("log_config.json", 'r') as f:
             config.dictConfig(json.load(f))
-        self.logger = getLogger(__name__)
-
-        self.nas = Nas()
-        self.database = Database()
-        self.createdFileRepository = CreatedFileRepository(self.database)
-        self.splittedFileRespository = SplittedFileRepository(self.database)
-        self.executedFileRepository = ExecutedFileRepository(self.database)
-        self.programRepository = ProgramRepository(self.database)
-        self.normalize = Normalize()
         self.logger = getLogger(__name__)
 
     def processPath(self, path: Path) -> None:
@@ -263,4 +254,4 @@ def mainWithDirectory():
             moveOldFiles.processPath(Path(dir).joinpath(file.filename))
 
 if __name__ == "__main__":
-    mainWithDirectory()
+    main()

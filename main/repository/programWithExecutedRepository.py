@@ -1,14 +1,12 @@
 import pymysql
 from main.component.database import Database
+from main.component.dependencyInjector import getInstance
 from main.dto.programWithExecuted import ProgramWithExecuted
 from main.enum.programStatus import ProgramStatus
 
 
 class ProgramWithExecutedRepository:
-    database: Database
-
-    def __init__(self, database: Database):
-        self.database = database
+    database: Database = getInstance(Database)
 
     def selectByNameAndStatus(self, keyword: str, status: ProgramStatus) -> list[ProgramWithExecuted]:
         with self.database.connection.cursor() as cursor:

@@ -6,14 +6,12 @@ from typing import Union
 import pymysql
 
 from main.component.database import Database
+from main.component.dependencyInjector import getInstance
 from main.dto.executedFileDto import ExecutedFileDto
 from main.enum.executedFileStatus import ExecutedFileStatus
 
 class ExecutedFileRepository:
-    database: Database
-
-    def __init__(self, database: Database):
-        self.database = database
+    database: Database = getInstance(Database)
 
     def insert(self, executedFile: ExecutedFileDto):
         with self.database.connection.cursor() as cursor:

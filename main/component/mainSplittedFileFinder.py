@@ -6,12 +6,8 @@ from main.dto.splittedFileDto import SplittedFileDto
 from main.repository.splittedFileRepository import SplittedFileRepository
 
 class MainSplittedFileFinder:
-    splittedFileRepository: SplittedFileRepository
-    logger: Logger
-
-    def __init__(self, database: Database) -> None:
-        self.splittedFileRepository = SplittedFileRepository(database)
-        self.logger = getLogger(__name__)
+    splittedFileRepository: SplittedFileRepository = SplittedFileRepository()
+    logger: Logger = getLogger(__name__)
 
     def splittedFileFromExecutedFile(self, executedFile: ExecutedFileDto) -> SplittedFileDto:
         """
@@ -94,6 +90,6 @@ class MainSplittedFileFinder:
         # 分割ファイルの時間が元ファイルより伸びる事象があったため、5秒まで分割ファイルのほうが長いことを許可
         durationDifference: int = int(executedFile.duration) - int(splittedFile.duration)
         if durationDifference < -5 or durationDifference > 20:
-            self.logger.warn(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}")
-            raise Exception(f"main file not found. duration between original and splitted is too different! executed_file_id:{executedFile.id}, executedFile:{executedFile.file}")
+            self.logger.warn(f"duration between original and splitted is too different! executed_file_id:{executedFile.id}, executedFileDuration:{executedFile.duration}, splittedFileDuration:{splittedFile.duration}")
+            raise Exception(f"main file not found. duration between original and splitted is too different! executed_file_id:{executedFile.id}, executedFile:{executedFile.file}, executedFileDuration:{executedFile.duration}, splittedFileDuration:{splittedFile.duration}")
         return True

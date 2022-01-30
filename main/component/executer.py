@@ -1,7 +1,7 @@
 import subprocess
 from logging import Logger, getLogger
 
-def executeCommand(commands: list[str], timeout: int =300) -> int:
+def executeCommand(commands: list[str], timeout: int =600) -> int:
     logger: Logger = getLogger(__name__)
     logger.info(f"""executing command: {commands}""")
     result: subprocess.CompletedProcess = subprocess.run(commands, capture_output=True, timeout=timeout)

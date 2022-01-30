@@ -2,6 +2,7 @@ from os import unlink
 from pathlib import Path
 import glob
 from logging import Logger, getLogger
+import traceback
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from main.dto.splittedFileDto import SplittedFileDto
@@ -18,17 +19,10 @@ class TsSplitter():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.parent.joinpath("libraries\\TsSplitter128\\TsSplitter.exe").absolute())
     OPTIONS = "-SD -EIT -1SEG"
     WORK_DIRECTORY = "tssplitter"
-    splittedFileRepository: SplittedFileRepository
-    executedFileRepository: ExecutedFileRepository
-    database: Database
-    logger: Logger
-
-    def __init__(self):
-        self.database = Database()
-        self.splittedFileRepository = SplittedFileRepository(self.database)
-        self.executedFileRepository = ExecutedFileRepository(self.database)
-        self.mainSplittedFileFinder = MainSplittedFileFinder(self.database)
-        self.logger = getLogger(__name__)
+    splittedFileRepository: SplittedFileRepository = SplittedFileRepository()
+    executedFileRepository: ExecutedFileRepository = ExecutedFileRepository()
+    mainSplittedFileFinder: MainSplittedFileFinder = MainSplittedFileFinder()
+    logger: Logger = getLogger(__name__)
 
     def tsSplitter(self, path: Path) -> SplittedFileDto:
         self.__validate(path)
@@ -99,8 +93,10 @@ class TsSplitter():
         exitCode: int = 0
         try:
             exitCode = executeCommand(command)
-        except:
-            pass
+        except Exception as e:
+            stackTrace: str = traceback.format_exc()
+            self.logger.error(f"tssplitter has error. e:{e}, traceback:{stackTrace}")
+            raise e
         if(exitCode != 0):
             self.logger.error("splitting file become error!")
             raise Exception("splitting file become error!")

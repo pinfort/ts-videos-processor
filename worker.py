@@ -4,6 +4,7 @@ from logging import getLogger, Logger, config
 import json
 from os.path import join, dirname
 from dotenv import load_dotenv
+from main.component.dependencyInjector import getInstance
 
 from tsVideosProcessor import TsVideosProcessor
 from main.component.redis import Redis
@@ -20,7 +21,7 @@ def worker():
     with open("log_config.json", 'r') as f:
         config.dictConfig(json.load(f))
     logger: Logger = getLogger(__name__)
-    redis: Redis = Redis()
+    redis: Redis = getInstance(Redis)
     processor: TsVideosProcessor = TsVideosProcessor()
 
     pubsub: PubSub  = redis.connection.pubsub()

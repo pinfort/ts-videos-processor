@@ -17,16 +17,9 @@ from main.repository.programRepository import ProgramRepository
 class DropChk():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.parent.joinpath("libraries\\tsDropChk\\tsDropChkx64.exe").absolute())
     OPTIONS = "-nolog -srcpath"
-    executedFileRepository: ExecutedFileRepository
-    programRepository: ProgramRepository
-    database: Database
-    logger: Logger
-
-    def __init__(self) -> None:
-        self.database = Database()
-        self.executedFileRepository = ExecutedFileRepository(self.database)
-        self.programRepository = ProgramRepository(self.database)
-        self.logger = getLogger(__name__)
+    executedFileRepository: ExecutedFileRepository = ExecutedFileRepository()
+    programRepository: ProgramRepository = ProgramRepository()
+    logger: Logger = getLogger(__name__)
 
     def dropChk(self, path: Path) -> bool:
         if(not path.exists()):

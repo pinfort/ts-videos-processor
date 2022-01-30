@@ -6,6 +6,7 @@ from logging import Logger, config, getLogger
 
 from main.component.redis import Redis
 from main.config.redis import REDIS_PROCESS_TOPIC
+from main.component.dependencyInjector import getInstance
 
 def addQueue():
     """
@@ -17,7 +18,7 @@ def addQueue():
     with open("log_config.json", 'r') as f:
         config.dictConfig(json.load(f))
         logger = getLogger(__name__)
-    connection: RedisClient = Redis().connection
+    connection: RedisClient = getInstance(Redis).connection
     for input in sys.argv[1:]:
         path = Path(input)
         for p in path.iterdir():

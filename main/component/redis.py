@@ -1,4 +1,5 @@
 from redis.client import Redis as RedisClient
+from main.component.dependencyInjector import register
 
 from main.config import redis
 
@@ -17,3 +18,9 @@ class Redis:
     def disConnect(self) -> None:
         if self.connection is not None:
             self.connection.close()
+
+@register
+def registerRedis() -> Redis:
+    return Redis()
+
+registerRedis()
