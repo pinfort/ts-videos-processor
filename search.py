@@ -33,6 +33,7 @@ def main():
     keyword = sys.argv[1]
 
     programs: list[ProgramWithExecuted] = programWithExecutedRepository.selectByNameAndStatus(keyword, ProgramStatus.COMPLETED)
+    print("凡例:", COLOR["RED"], "DROPあり", COLOR["ENDC"], " ", COLOR["GREEN"], "DROP数不明", COLOR["ENDC"], " ")
     print("id\trecorded_at\t\tchannelName\t\tdrops\ttsExists\ttitle")
     for program in programs:
         splittedFiles = splittedFileRepository.selectByExecutedFileId(program.executedFileId)

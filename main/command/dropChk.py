@@ -62,7 +62,6 @@ class DropChk():
             status=ProgramStatus.REGISTERED
         )
         self.programRepository.insert(program)
-        self.database.commit()
         return True
 
     def rollback(self, path:Path) -> None:

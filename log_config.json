@@ -23,26 +23,19 @@
             "level": "INFO",
             "formatter": "simple",
             "filename": "logs/app.log"
-        },
-        "logstashHandler": {
-            "class": "logstash_async.handler.SynchronousLogstashHandler",
-            "level": "INFO",
-            "formatter": "json",
-            "host": "192.168.2.56",
-            "port": 8080
         }
     },
 
     "loggers": {
         "__main__": {
             "level": "DEBUG",
-            "handlers": ["consoleHandler", "fileHandler", "logstashHandler"],
+            "handlers": ["consoleHandler", "fileHandler"],
             "propagate": false
         }
     },
 
     "root": {
         "level": "INFO",
-        "handlers": ["consoleHandler", "fileHandler", "logstashHandler"]
+        "handlers": ["consoleHandler", "fileHandler"]
     }
 }
