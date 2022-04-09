@@ -27,6 +27,11 @@ class RemoveProgram():
         if program is None:
             self.logger.error(f"program not found. aborting. id:{programId}")
             return
+        self.logger.info(f"program will be deleted: {program.name}")
+        response = input("is it OK? [y/N]>")
+        if response.lower() != "y":
+            self.logger.error(f"cancelled. aborting. id:{programId}")
+            return
         executedFile: Union[ExecutedFileDto, None] = self.executedFileRepository.find(program.executedFileId)
         if executedFile is None:
             self.logger.error(f"executedFile not found. aborting. executedfileId:{program.executedFileId}")
