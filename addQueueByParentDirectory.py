@@ -18,7 +18,7 @@ def addQueue():
     with open("log_config.json", 'r') as f:
         config.dictConfig(json.load(f))
         logger = getLogger(__name__)
-    connection: RedisClient = getInstance(Redis, None).connection
+    connection: RedisClient = getInstance(Redis).connection
     for input in sys.argv[1:]:
         path = Path(input)
         for p in path.iterdir():

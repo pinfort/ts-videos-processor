@@ -30,7 +30,7 @@ def main():
     programRepository = ProgramRepository()
     createdFileRepository = CreatedFileRepository()
     splittedFileRepository = SplittedFileRepository()
-    nas: Nas = getInstance(Nas, None)
+    nas: Nas = getInstance(Nas)
 
     programId = int(sys.argv[1])
     targetName = sys.argv[2]

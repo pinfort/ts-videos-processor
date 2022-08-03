@@ -11,7 +11,7 @@ from main.dto.executedFileDto import ExecutedFileDto
 from main.enum.executedFileStatus import ExecutedFileStatus
 
 class ExecutedFileRepository:
-    database: Database = getInstance(Database, None)
+    database: Database = getInstance(Database)
 
     def insert(self, executedFile: ExecutedFileDto):
         with self.database.connection.cursor() as cursor:

@@ -18,7 +18,7 @@ from main.component.normalize import Normalize
 
 class CompressAndSave:
     logger: Logger = getLogger(__name__)
-    nas: Nas = getInstance(Nas, None)
+    nas: Nas = getInstance(Nas)
     compress: Compress = Compress()
     createdFileRepository: CreatedFileRepository = CreatedFileRepository()
     splittedFileRespository: SplittedFileRepository = SplittedFileRepository()

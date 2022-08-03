@@ -42,7 +42,7 @@ class MoveOldFiles():
     splittedFileRespository: SplittedFileRepository = SplittedFileRepository()
     executedFileRepository: ExecutedFileRepository = ExecutedFileRepository()
     programRepository: ProgramRepository = ProgramRepository()
-    nas: Nas = getInstance(Nas, None)
+    nas: Nas = getInstance(Nas)
     normalize: Normalize = Normalize()
 
     def __init__(self) -> None:

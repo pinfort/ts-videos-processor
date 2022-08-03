@@ -10,7 +10,7 @@ from main.dto.splittedFileDto import SplittedFileDto
 from main.enum.splittedFileStatus import SplittedFileStatus
 
 class SplittedFileRepository:
-    database: Database = getInstance(Database, None)
+    database: Database = getInstance(Database)
 
     def insert(self, splittedFile: SplittedFileDto):
         with self.database.connection.cursor() as cursor:

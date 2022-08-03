@@ -10,7 +10,7 @@ from main.dto.programDto import ProgramDto
 from main.enum.programStatus import ProgramStatus
 
 class ProgramRepository:
-    database: Database = getInstance(Database, None)
+    database: Database = getInstance(Database)
 
     def insert(self, program: ProgramDto):
         with self.database.connection.cursor() as cursor:
