@@ -26,7 +26,7 @@ class FixStatus:
     createdFileRepository: CreatedFileRepository = CreatedFileRepository()
     programRepository: ProgramRepository = ProgramRepository()
     logger: Logger
-    nas: Nas = getInstance(Nas)
+    nas: Nas = getInstance(Nas, None)
 
     def __init__(self) -> None:
         dotenv_path = join(dirname(__file__), '.env')

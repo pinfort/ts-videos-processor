@@ -12,7 +12,7 @@ def addQueue():
     ファイルパスを引数に入れて起動することで、Redisにメッセージを送信する。worker.pyが監視していれば、そのメッセージを拾って処理してくれる。
     Redisの仕様上、workerが監視していない時に送ったメッセージは消えてしまうので注意が必要。
     """
-    connection: RedisClient = getInstance(Redis).connection
+    connection: RedisClient = getInstance(Redis, None).connection
     for input in sys.argv[1:]:
         connection.publish(REDIS_PROCESS_TOPIC, str(Path(input)))
 

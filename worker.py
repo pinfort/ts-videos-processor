@@ -21,7 +21,7 @@ def worker():
     with open("log_config.json", 'r') as f:
         config.dictConfig(json.load(f))
     logger: Logger = getLogger(__name__)
-    redis: Redis = getInstance(Redis)
+    redis: Redis = getInstance(Redis, None)
     processor: TsVideosProcessor = TsVideosProcessor()
 
     pubsub: PubSub  = redis.connection.pubsub()

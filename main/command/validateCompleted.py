@@ -16,7 +16,7 @@ class ValidateCompleted():
     splittedFileRepository: SplittedFileRepository = SplittedFileRepository()
     programRepository: ProgramRepository = ProgramRepository()
     logger: Logger = getLogger(__name__)
-    nas: Nas = getInstance(Nas)
+    nas: Nas = getInstance(Nas, None)
 
     def validate(self, programId: int) -> bool:
         self.logger.info(f"validating program id:{programId}")
