@@ -19,7 +19,7 @@ class RemoveProgram():
     createdFileRepository: CreatedFileRepository = CreatedFileRepository()
     programRepository: ProgramRepository = ProgramRepository()
     logger: Logger = getLogger(__name__)
-    nas: Nas = getInstance(Nas)
+    nas: Nas = getInstance(Nas, None)
 
     def remove(self, programId: int) -> None:
         self.logger.info(f"reset processing. programId:{programId}")
