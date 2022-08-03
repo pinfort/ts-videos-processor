@@ -135,7 +135,7 @@ class ProcessAfterEncode:
 
     files: list[Path]
 
-    nas: Nas = getInstance(Nas, None)
+    nas: Nas = getInstance(Nas)
     createdFileRepository: CreatedFileRepository = CreatedFileRepository()
     splittedFileRepository: SplittedFileRepository = SplittedFileRepository()
     executedFileRepository: ExecutedFileRepository = ExecutedFileRepository()

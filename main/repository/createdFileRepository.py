@@ -9,7 +9,7 @@ from main.dto.createdFileDto import CreatedFileDto
 from main.enum.createdFileStatus import CreatedFileStatus
 
 class CreatedFileRepository:
-    database: Database = getInstance(Database, None)
+    database: Database = getInstance(Database)
 
     def insert(self, createdFile: CreatedFileDto):
         with self.database.connection.cursor() as cursor:
