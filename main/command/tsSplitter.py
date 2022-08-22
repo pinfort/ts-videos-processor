@@ -1,3 +1,4 @@
+import math
 from os import unlink
 from pathlib import Path
 import glob
@@ -33,7 +34,7 @@ class TsSplitter():
         if(not outputPath.exists()):
             outputPath.mkdir()
 
-        self.__executeCommand(path, outputPath)
+        self.__executeCommand(path, outputPath, max(math.ceil(originalFile.duration), 600))
 
         files = self.findFiles(originalFile)
         if(len(files) == 0):
@@ -87,12 +88,12 @@ class TsSplitter():
                 self.logger.error(file)
             raise Exception(f"splitted file already exist! original:{originalFile}")
     
-    def __executeCommand(self, inputPath: Path, outPutPath: Path) -> None:
+    def __executeCommand(self, inputPath: Path, outPutPath: Path, duration: int = 600) -> None:
         command = TsSplitter.APPLICATION_PATH + " " + TsSplitter.OPTIONS + " -OUT \"" + str(outPutPath.absolute()) + "\" -SEP \"" + str(inputPath.absolute()) + "\""
         self.logger.info(f"tsSpliter starting with command:{command}")
         exitCode: int = 0
         try:
-            exitCode = executeCommand(command)
+            exitCode = executeCommand(command, duration)
         except Exception as e:
             stackTrace: str = traceback.format_exc()
             self.logger.error(f"tssplitter has error. e:{e}, traceback:{stackTrace}")
