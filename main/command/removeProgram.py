@@ -3,6 +3,7 @@ from logging import Logger, getLogger
 
 from main.component.database import Database
 from main.component.dependencyInjector import getInstance
+from main.component.subNas import SubNas
 from main.dto.createdFileDto import CreatedFileDto
 from main.dto.executedFileDto import ExecutedFileDto
 from main.dto.programDto import ProgramDto
@@ -20,6 +21,7 @@ class RemoveProgram():
     programRepository: ProgramRepository = ProgramRepository()
     logger: Logger = getLogger(__name__)
     nas: Nas = getInstance(Nas)
+    subNas: SubNas = getInstance(SubNas)
 
     def remove(self, programId: int) -> None:
         self.logger.info(f"reset processing. programId:{programId}")
@@ -42,8 +44,11 @@ class RemoveProgram():
             for c in createdFiles:
                 self.logger.info(f"created file found. path:{c.file}")
                 if self.nas.fileOrDirectoryExists(c.file):
-                    self.logger.info(f"file deleted. file:{c.file}")
+                    self.logger.info(f"file deleted from firstNas. file:{c.file}")
                     self.nas.removeFile(c.file)
+                elif self.subNas.fileOrDirectoryExists(c.file):
+                    self.logger.info(f"file deleted from subNas. file:{c.file}")
+                    self.subNas.removeFile(c.file)
             self.createdFileRepository.deleteBySplittedFileId(f.id)
 
             self.logger.info(f"splitted file found. path:{f.file}")
