@@ -11,6 +11,8 @@ from main.command.dropChk import DropChk
 from main.command.tsSplitter import TsSplitter
 from main.command.amatsukazeAddTask import AmatsukazeAddTask
 from main.command.compressAndSave import CompressAndSave
+from main.component.database import Database
+from main.component.dependencyInjector import getInstance
 from main.config.slack import SLACK_WEBHOOK_URL
 from main.dto.splittedFileDto import SplittedFileDto
 
@@ -56,6 +58,10 @@ class TsVideosProcessor:
             self.logger.info("given path is file")
             files = list()
             files.append(path)
+
+        # 処理前にデータベースに再接続しておかないと、コネクションが切れている場合がある（長時間起動しっぱなしだった場合など）
+        database: Database = getInstance(Database)
+        database.reConnect()
 
         for file in files:
             try:
