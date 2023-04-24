@@ -198,3 +198,18 @@ class CreatedFileRepository:
             ))
             self.database.commit()
         self.database.reConnect()
+
+    def delete(self, id: int) -> None:
+        with self.database.connection.cursor() as cursor:
+            cursor.execute(f"""
+                DELETE
+                FROM
+                    created_file
+                WHERE
+                    id = %s
+            """, (
+                id
+            ))
+            self.database.commit()
+        self.database.reConnect()
+    
