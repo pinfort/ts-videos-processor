@@ -3,6 +3,7 @@ from pathlib import Path
 from logging import Logger, getLogger
 
 from main.component.executer import executeCommand
+from main.config import amatsukaze
 
 class AmatsukazeAddTask():
     APPLICATION_PATH: str = str(Path(__file__).parent.parent.parent.joinpath("libraries\\Amatsukaze\\exe_files\\AmatsukazeAddTask.exe").absolute())
@@ -12,7 +13,7 @@ class AmatsukazeAddTask():
 
     def amatsukaze(self, splittedFile: SplittedFileDto):
         outputPath: Path = splittedFile.file.parent.joinpath("encoded") # 入力ファイルのある場所のencodedフォルダに出力する
-        self.addTask(splittedFile.file, outputPath)
+        self.addTask(splittedFile.file, outputPath, amatsukaze.AMATSUKAZE_HOST, amatsukaze.AMATSUKAZE_PORT)
 
     def addTask(self, filePath: Path, outputPath: Path, host: str = "localhost", port: int = 32768, profile_name: str = "30fps_light") -> None:
         if(not outputPath.exists()):
